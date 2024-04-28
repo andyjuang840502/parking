@@ -95,10 +95,14 @@
         function test(){
             $.ajax({
                 url: "test.php",
-                dataType:"text",
-                // dataType:"json",
+                method:'POST',
+                // dataType:"text",
+                dataType:"json",
+                data: {
+                    testCode: $('#name').val()
+                },
                 success: function(result) {
-                    console.log(result);
+                    $('#remasks').val(result);
                 }
                 });
         }

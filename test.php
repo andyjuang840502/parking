@@ -1,7 +1,5 @@
 <?php 
-$a = array(1,2,3);
+$a = $_POST['testCode'];
 
-
-// echo 'test';
 echo json_encode($a);
 ?>
