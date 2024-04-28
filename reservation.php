@@ -95,8 +95,8 @@
         function test(){
             $.ajax({
                 url: "test.php",
-                dataType:"text",
-                // dataType:"json",
+                //dataType:"text",
+                dataType:"json",
                 success: function(result) {
                     console.log(result);
                 }
