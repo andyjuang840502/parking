@@ -101,6 +101,8 @@
                 data: {
                     testCode: $('#name').val()
                 },
+                //dataType:"text",
+                dataType:"json",
                 success: function(result) {
                     $('#remasks').val(result);
                 }
