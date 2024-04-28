@@ -32,6 +32,7 @@
             display: inline;
         }
     </style>
+    <script src="jquery-3.7.1.min.js"></script>
 </head>
 <body>
     <h2>請輸入預約資料</h2>
@@ -77,6 +78,7 @@
         <input type="text" name="remasks" id="remasks"><br><br>
         
         <input type="submit" name="submit" value="提交">
+        <input type="button" value="測試" onclick="test()">
     </form>
 
     <script>
@@ -89,6 +91,17 @@
                 tooltip.style.display = 'none';
             });
         });
+
+        function test(){
+            $.ajax({
+                url: "test.php",
+                dataType:"text",
+                // dataType:"json",
+                success: function(result) {
+                    console.log(result);
+                }
+                });
+        }
     </script>
 
     <?php
