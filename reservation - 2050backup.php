@@ -114,112 +114,86 @@
         }
     </script>
 
-<?php
-// 包含配置檔
-require_once "config.php";
+    <?php
+    // 確認是否有提交表單
+    if ($_SERVER["REQUEST_METHOD"] == "POST") {
+        // 包含配置檔
+        require_once "config.php";
 
-// 創建連接
-$conn = new mysqli($servername, $username, $password, $database);
+        // 創建連接
+        $conn = new mysqli($servername, $username, $password, $database);
 
-// 檢查連接是否成功
-if ($conn->connect_error) {
-    die("連接失敗：" . $conn->connect_error);
-}
+        // 檢查連接是否成功
+        if ($conn->connect_error) {
+            die("連接失敗：" . $conn->connect_error);
+        }
 
-$parking_amount=5; //停車場總停車格數
-//$parking_amount_backup=2;//停車場備用停車格數
-$count = 0 ; //停車場停放+預約數量
-$exit_count = 0;
+        $parking_amount=5; //停車場可停車總數
 
-// 獲取表單數據
-$name = $_POST["name"];
-$phone = $_POST["phone"];
-$license_plate = $_POST["license_plate"];
-$mileage = $_POST["mileage"];
-$people_count = $_POST["people_count"];
-$entry_time = $_POST["entry_time"];
-$exit_time = $_POST["exit_time"];
-$remasks = $_POST["remasks"];
+        // 獲取表單數據
+        $name = $_POST["name"];
+        $phone = $_POST["phone"];
+        $license_plate = $_POST["license_plate"];
+        $mileage = $_POST["mileage"];
+        $people_count = $_POST["people_count"];
+        $entry_time = $_POST["entry_time"];
+        $exit_time = $_POST["exit_time"];
+        $remasks = $_POST["remasks"];
+
+        //$sql = "SELECT COUNT(*) FROM reservation WHERE ? BETWEEN ReservationDayIn AND ReservationDayOut" ;
+        $sql = "SELECT COUNT(*) AS count FROM reservation WHERE '$entry_time' BETWEEN ReservationDayIn AND ReservationDayOut";
+
+        // 准备查询语句并绑定参数
+        $stmt = $conn->prepare($sql);
+        $stmt->bind_param("s", $entry_time);
+
+        // 执行查询
+        $stmt->execute();
+
+        // 获取结果
+        // 执行查询
+        $result = $stmt->get_result();
+        if ($result === false) {
+            die("执行查询失败：" . $stmt->error);
+        }
+
+        // 获取结果
+        $row = $result->fetch_assoc();
+        $count = $row['count'];
 
 
-//==============查詢預約欄位 是否還有停車位可預約===========//
-//判斷進場
-$sql = "SELECT COUNT(*) AS count FROM reservation WHERE ? BETWEEN ReservationDayIn AND ReservationDayOut";
-$stmt = $conn->prepare($sql);
-$stmt->bind_param("s", $entry_time);
-$stmt->execute();
-$result = $stmt->get_result();
-$row = $result->fetch_assoc();
-$reservation_count = $row['count'];
-$stmt->close();
+        // 如果停车位已满，输出消息
+        if ($count >= $parking_amount) {
+            echo '<script>alert("抱歉，停车场已满，请选择其他时间预约！");</script>';
+            exit;
+        }
 
-//判斷退場
-$sql = "SELECT COUNT(*) AS count FROM reservation WHERE ? BETWEEN ReservationDayIn AND ReservationDayOut";
-$stmt = $conn->prepare($sql);
-$stmt->bind_param("s", $exit_time);
-$stmt->execute();
-$result = $stmt->get_result();
-$row = $result->fetch_assoc();
-$reservation_exit_count = $row['count'];
-$stmt->close();
-//==============查詢預約欄位 是否還有停車位可預約===========//
 
-//==============查詢停車欄位 是否還有停車位可預約===========//
-//判斷進場
-$sql = "SELECT COUNT(*) AS count FROM parking WHERE ? BETWEEN ParkingDay AND BackDay";
-$stmt = $conn->prepare($sql);
-$stmt->bind_param("s", $entry_time);
-$stmt->execute();
-$result = $stmt->get_result();
-$row = $result->fetch_assoc();
-$parking_count = $row['count'];
+        // SQL 插入語句
+        if (strtotime($entry_time) <= time()) {
+            echo '<script>alert("預約進場時間不能是過去時間！");</script>';
+        } elseif (strtotime($exit_time) <= time()) {
+            echo '<script>alert("預約離場時間不能是過去時間！");</script>';
+        } elseif (strtotime($exit_time) <= strtotime($entry_time)) {
+            echo '<script>alert("預約離場時間不能比進場時間早！");</script>';
+        } else {
+           // SQL 插入語句
+           $sql = "INSERT INTO reservation (Name, Phone, LicensePlateNumber, ReservationDayIn, Milage, People, ReservationDayOut, Remasks) 
+                    VALUES ('$name', '$phone', '$license_plate', '$entry_time', '$mileage', '$people_count', '$exit_time', '$remasks')";
+    
+            // 執行 SQL 插入語句
+            if ($conn->query($sql) === TRUE) {
+               echo '<script>alert("預約成功！");</script>';
+                    
+            } else {
+                echo "錯誤：" . $sql . "<br>" . $conn->error;
+            }
+        }
 
-//判斷退場
-$sql = "SELECT COUNT(*) AS count FROM parking WHERE ? BETWEEN ParkingDay AND BackDay";
-$stmt = $conn->prepare($sql);
-$stmt->bind_param("s", $exit_time);
-$stmt->execute();
-$result = $stmt->get_result();
-$row = $result->fetch_assoc();
-$parking_exit_count = $row['count'];
-//==============查詢停車欄位 是否還有停車位可預約===========//
-
-$count=$reservation_count + $parking_count;
-$exit_count = $reservation_exit_count + $parking_exit_count;
-
-// 判斷停車場剩餘數量
-if ($count >= $parking_amount or $exit_count >= $parking_amount) {
-    echo '<script>alert("抱歉，停車場已滿，請選擇其他時間預約！");</script>';
-    exit;
-}
-
-// SQL 插入語句
-if (strtotime($entry_time) <= time()) {
-    echo '<script>alert("預約進場時間不能是過去時間！");</script>';
-} elseif (strtotime($exit_time) <= time()) {
-    echo '<script>alert("預約離場時間不能是過去時間！");</script>';
-} elseif (strtotime($exit_time) <= strtotime($entry_time)) {
-    echo '<script>alert("預約離場時間不能比進場時間早！");</script>';
-} else {
-    // SQL 插入語句
-    $sql = "INSERT INTO reservation (Name, Phone, LicensePlateNumber, ReservationDayIn, Milage, People, ReservationDayOut, Remasks) 
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
-
-    // 准备查询语句并绑定参数
-    $stmt = $conn->prepare($sql);
-    $stmt->bind_param("ssssssss", $name, $phone, $license_plate, $entry_time, $mileage, $people_count, $exit_time, $remasks);
-
-    // 執行 SQL 插入語句
-    if ($stmt->execute()) {
-        echo '<script>alert("預約成功！");</script>';
-    } else {
-        echo "錯誤：" . $sql . "<br>" . $conn->error;
+                // 關閉連接
+                $stmt->close();
+                $conn->close();
     }
-}
-
-// 關閉連接
-$stmt->close();
-$conn->close();
-?>
+    ?>
 </body>
 </html>
