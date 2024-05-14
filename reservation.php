@@ -101,7 +101,7 @@
 
             // 使用 AJAX 發送資料給伺服器
             $.ajax({
-                url: "process_reservation.php", // 您需要創建一個處理表單的 PHP 檔案
+                url: "process_reservation.php", 
                 method: 'POST',
                 dataType: "json",
                 data: $(this).serialize(),
