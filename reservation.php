@@ -35,7 +35,7 @@
 </head>
 <body>
     <h2>請輸入預約資料</h2>
-    <form id="reservationForm">
+    <form id="reservationForm" autocomplete="off">
         <label for="name">姓名 (Name)：</label>
         <input type="text" name="name" id="name" required>
         <span class="required">*</span>
@@ -94,6 +94,7 @@
             });
         });
 
+        $(document).ready(function() {
         // 當表單提交時觸發
         $('#reservationForm').submit(function(event) {
             event.preventDefault(); // 防止表單正常提交
@@ -107,12 +108,20 @@
                 success: function(result) {
                     // 根據伺服器返回的結果進行處理
                     alert(result.message); // 可以使用 alert() 或其他方式顯示結果給使用者
+                    if (result.success) {
+                        // 如果預約成功，清空表單資料（延遲 500 毫秒）
+                        setTimeout(function() {
+                            $('#reservationForm')[0].reset();
+                        }, 500);
+                    }
                 },
                 error: function(xhr, status, error) {
                     console.error(xhr.responseText); // 如果出現錯誤，可以在控制台中顯示錯誤訊息
                 }
             });
         });
+    });
+
     </script>
 </body>
 </html>

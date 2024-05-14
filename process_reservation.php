@@ -84,9 +84,9 @@ if (!empty($name) && !empty($phone) && !empty($license_plate) && !empty($entry_t
 
         // 執行 SQL 插入語句
         if ($stmt->execute()) {
-            $response = array("message" => "預約成功！");
+            $response = array("message" => "預約成功！", "success" => true);
         } else {
-            $response = array("message" => "錯誤：" . $sql . "<br>" . $conn->error);
+            $response = array("message" => "錯誤：" . $sql . "<br>" . $conn->error, "success" => false);
         }
     }
 } else {
