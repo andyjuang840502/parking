@@ -98,7 +98,7 @@
         // 當表單提交時觸發
         $('#reservationForm').submit(function(event) {
             event.preventDefault(); // 防止表單正常提交
-
+console.log(123);
             // 使用 AJAX 發送資料給伺服器
             $.ajax({
                 url: "process_reservation.php", 
