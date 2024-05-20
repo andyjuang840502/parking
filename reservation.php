@@ -1,8 +1,6 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>晶順停車場 預約停車</title>
     <style>
         body {
@@ -75,44 +73,71 @@
             opacity: 1;
         }
     </style>
-    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="jquery-3.7.1.min.js"></script>
 </head>
 <body>
     <h2>請輸入預約資料</h2>
     <form id="reservationForm" autocomplete="off">
-        <label for="name">姓名 (Name)：<span class="required">*</span></label>
+        <label for="name">姓名 (Name)：</label>
         <input type="text" name="name" id="name" required>
-        <div class="tooltip"><span class="tooltiptext">此為必填欄位</span></div>
+        <span class="required">*</span>
+        <span class="tooltip">
+            <span class="tooltiptext">此為必填欄位</span>
+        </span><br><br>
         
-        <label for="phone">電話 (Phone)：<span class="required">*</span></label>
+        <label for="phone">電話 (Phone)：</label>
         <input type="text" name="phone" id="phone" required>
-        <div class="tooltip"><span class="tooltiptext">此為必填欄位</span></div>
+        <span class="required">*</span>
+        <span class="tooltip">
+            <span class="tooltiptext">此為必填欄位</span>
+        </span><br><br>
         
-        <label for="license_plate">車牌號碼 (LicensePlateNumber)：<span class="required">*</span></label>
+        <label for="license_plate">車牌號碼 (LicensePlateNumber)：</label>
         <input type="text" name="license_plate" id="license_plate" required>
-        <div class="tooltip"><span class="tooltiptext">此為必填欄位</span></div>
+        <span class="required">*</span>
+        <span class="tooltip">
+            <span class="tooltiptext">此為必填欄位</span>
+        </span><br><br>
         
-        <label for="entry_time">預約進場時間 (ReservationDayIn)：<span class="required">*</span></label>
+        <label for="entry_time">預約進場時間 (ReservationDayIn)：</label>
         <input type="date" name="entry_time" id="entry_time" required>
-        <div class="tooltip"><span class="tooltiptext">此為必填欄位</span></div>
+        <span class="required">*</span>
+        <span class="tooltip">
+            <span class="tooltiptext">此為必填欄位</span>
+        </span><br><br>
         
         <label for="mileage">里程數 (Milage)：</label>
-        <input type="text" name="mileage" id="mileage">
+        <input type="text" name="mileage" id="mileage"><br><br>
         
         <label for="people_count">人數 (People)：</label>
-        <input type="number" name="people_count" id="people_count">
+        <input type="number" name="people_count" id="people_count"><br><br>
         
-        <label for="exit_time">預約離場時間 (ReservationDayOut)：<span class="required">*</span></label>
+        <label for="exit_time">預約離場時間 (ReservationDayOut)：</label>
         <input type="date" name="exit_time" id="exit_time" required>
-        <div class="tooltip"><span class="tooltiptext">此為必填欄位</span></div>
+        <span class="required">*</span>
+        <span class="tooltip">
+            <span class="tooltiptext">此為必填欄位</span>
+        </span><br><br>
         
-        <label for="remarks">備註 (Remarks)：</label>
-        <input type="text" name="remarks" id="remarks">
+        <label for="remarks">備註 (Remasks)：</label>
+        <input type="text" name="remasks" id="remasks"><br><br>
         
         <input type="submit" name="submit" value="提交">
     </form>
 
+    <div id="error-message" style="color: red;"></div>
+
     <script>
+        document.querySelectorAll('.required').forEach(function(element) {
+            var tooltip = element.nextElementSibling.querySelector('.tooltiptext');
+            element.addEventListener('mouseover', function() {
+                tooltip.style.display = 'inline';
+            });
+            element.addEventListener('mouseout', function() {
+                tooltip.style.display = 'none';
+            });
+        });
+
         $(document).ready(function() {
             // 當表單提交時觸發
             $('#reservationForm').submit(function(event) {
@@ -127,4 +152,20 @@
                     success: function(result) {
                         // 根據伺服器返回的結果進行處理
                         alert(result.message); // 可以使用 alert() 或其他方式顯示結果給使用者
-                        if
+                        if (result.success) {
+                            // 如果預約成功，清空表單資料（延遲 500 毫秒）
+                            setTimeout(function() {
+                                $('#reservationForm')[0].reset();
+                            }, 500);
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        // 如果出現錯誤，將錯誤訊息顯示在頁面上
+                        $('#error-message').text("錯誤：" + xhr.responseText);
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>
