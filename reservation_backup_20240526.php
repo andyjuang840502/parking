@@ -121,8 +121,6 @@
         
         <label for="remarks">備註 (Remasks)：</label>
         <input type="text" name="remasks" id="remasks"><br><br>
-        <!-- 隱藏的流水號欄位 -->
-        <input type="hidden" name="number" id="number" value="<?php echo isset($_GET['number']) ? $_GET['number'] : ''; ?>">
         
         <input type="submit" name="submit" value="提交">
     </form>
@@ -167,26 +165,6 @@
                     }
                 });
             });
-        });
-
-        // 檢查是否有從搜索頁面傳遞過來的記錄數據
-        $(document).ready(function() {
-            // 檢查是否有從搜索頁面傳遞過來的記錄數據
-            const urlParams = new URLSearchParams(window.location.search);
-            const recordData = urlParams.get('record');
-            if (recordData) {
-                const record = JSON.parse(recordData);
-                // 將記錄填入表單
-                $('#name').val(record.Name);
-                $('#phone').val(record.Phone);
-                $('#license_plate').val(record.LicensePlateNumber);
-                $('#entry_time').val(record.ReservationDayIn);
-                $('#mileage').val(record.Milage);
-                $('#people_count').val(record.People);
-                $('#exit_time').val(record.ReservationDayOut);
-                $('#remasks').val(record.Remasks);
-                $('#number').val(record.Number);
-            }
         });
     </script>
 </body>

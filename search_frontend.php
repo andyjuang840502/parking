@@ -98,11 +98,17 @@
     </div>
 
     <script>
+        // 定义编辑记录函数
+        function editRecord(record) {
+            // 将记录转换为 JSON 格式，并将其作为查询参数传递到 reservation.php
+            window.location.href = "reservation.php?record=" + encodeURIComponent(JSON.stringify(record));
+        }
+
         $(document).ready(function() {
             $('#searchForm').submit(function(event) {
-                event.preventDefault(); // 防止表單正常提交
+                event.preventDefault(); // 防止表单正常提交
 
-                // 使用 AJAX 發送資料給伺服器
+                // 使用 AJAX 发送数据给服务器
                 $.ajax({
                     url: "search.php", 
                     method: 'POST',
@@ -120,11 +126,24 @@
             function displayResults(data) {
                 var html = "<h3>查詢結果</h3>";
                 if (data.length > 0) {
-                    html += "<ul>";
+                    html += "<table border='1'>";
+                    // 表头
+                    html += "<tr><th>姓名</th><th>電話</th><th>預約進場日期</th><th>車牌號碼</th><th>里程數</th><th>人數</th><th>預約離場時間</th><th>備註</th></tr>";
+                    // 遍历每条结果并添加到表格中
                     data.forEach(function(item) {
-                        html += "<li>" + item.Name + " - " + item.BackDay + " - " + item.LicensePlateNumber + " - " + item.Phone + "</li>";
+                        html += "<tr>";
+                        html += "<td>" + item.Name + "</td>";
+                        html += "<td>" + item.Phone + "</td>";
+                        html += "<td>" + item.ReservationDayIn + "</td>";
+                        html += "<td>" + item.LicensePlateNumber + "</td>";
+                        html += "<td>" + item.Milage + "</td>";
+                        html += "<td>" + item.People + "</td>";
+                        html += "<td>" + item.ReservationDayOut + "</td>";
+                        html += "<td>" + item.Remasks + "</td>";
+                        html += "<td><button onclick='enterRecord(" + item.ID + ")'>進場</button> <button onclick='editRecord(" + JSON.stringify(item) + ")'>修改</button> <button onclick='deleteRecord(" + item.ID + ")'>刪除</button></td>";
+                        html += "</tr>";
                     });
-                    html += "</ul>";
+                    html += "</table>";
                 } else {
                     html += "<p>未找到匹配的記錄。</p>";
                 }
