@@ -78,33 +78,44 @@
 <body>
     <h2>停車登記表單</h2>
     <form id="parkingForm" method="post">
-        <label for="reservation_check">是否有預約過？</label>
-        <input type="radio" name="reservation_check" value="yes" checked>是
-        <input type="radio" name="reservation_check" value="no">否<br><br>
 
-        <button type="button" onclick="checkReservation()">確認</button><br><br>
-
-        <div id="reservation_plate" style="display:none;">
-            <label for="reservation_plate_input">預約車牌：</label>
-            <input type="text" name="reservation_plate_input" id="reservation_plate_input"><br><br>
-        </div>
         <label for="number">聯單編號 (Number)：</label>
-        <input type="text" name="number" id="number" required><br><br>
+        <input type="text" name="number" id="number" required>
+        <span class="required">*</span>
+        <span class="tooltip">
+            <span class="tooltiptext">此為必填欄位</span>
+        </span><br><br>
         
         <label for="name">駕駛人 (Name)：</label>
-        <input type="text" name="name" id="name" required><br><br>
+        <input type="text" name="name" id="name" required>
+        <span class="required">*</span>
+        <span class="tooltip">
+            <span class="tooltiptext">此為必填欄位</span>
+        </span><br><br>
         
         <label for="phone">連絡電話 (Phone)：</label>
-        <input type="text" name="phone" id="phone" required><br><br>
+        <input type="text" name="phone" id="phone" required>
+        <span class="required">*</span>
+        <span class="tooltip">
+            <span class="tooltiptext">此為必填欄位</span>
+        </span><br><br>
         
         <label for="license_plate">車牌 (LicensePlateNumber)：</label>
-        <input type="text" name="license_plate" id="license_plate" required><br><br>
+        <input type="text" name="license_plate" id="license_plate" required>
+        <span class="required">*</span>
+        <span class="tooltip">
+            <span class="tooltiptext">此為必填欄位</span>
+        </span><br><br>
 
         <label for="milage">里程數 (Milage)：</label>
         <input type="text" name="milage" id="milage"><br><br>
 
         <label for="parking_number">停車位 (ParkingNumber)：</label>
-        <input type="text" name="parking_number" id="parking_number"><br><br>
+        <input type="text" name="parking_number" id="parking_number">
+        <span class="required">*</span>
+        <span class="tooltip">
+            <span class="tooltiptext">此為必填欄位</span>
+        </span><br><br>
 
         <label for="emigrantiot">出境航廈 (Emigrantiot)：</label>
         <select name="emigrantiot" id="emigrantiot">
@@ -149,34 +160,21 @@
     </form>
 
     <script>
-        function checkReservation() {
-            var reservation_check = $('input[name="reservation_check"]:checked').val();
-            if (reservation_check === "yes") {
-                var license_plate = prompt("請輸入預約車牌：");
-                if (license_plate != null && license_plate != "") {
-                    // 發送 AJAX 請求
-                    $.ajax({
-                        type: 'GET',
-                        url: 'get_reservation_info.php',
-                        data: { license_plate: license_plate },
-                        dataType: 'json',
-                        success: function(data) {
-                            if (data) {
-                                $('#reservation_plate_input').val(data.LicensePlateNumber);
-                                // 更新其他相關欄位
-                            } else {
-                                alert("未找到匹配的預約資訊。");
-                            }
-                        },
-                        error: function(xhr, status, error) {
-                            console.error(xhr.responseText);
-                        }
-                    });
-                }
-            }
-        }
-
         $(document).ready(function() {
+            // 獲取今天的日期和時間
+            var now = new Date();
+            var year = now.getFullYear();
+            var month = (now.getMonth() + 1).toString().padStart(2, '0');
+            var day = now.getDate().toString().padStart(2, '0');
+            var hour = now.getHours().toString().padStart(2, '0');
+            var minute = now.getMinutes().toString().padStart(2, '0');
+
+            // 構造日期時間字符串（格式為YYYY-MM-DDTHH:MM，如2024-06-05T10:30）
+            var defaultDateTime = year + '-' + month + '-' + day + 'T' + hour + ':' + minute;
+
+            // 將默認日期時間設置到進場日期欄位
+            $('#parking_day').val(defaultDateTime);
+            
             $('#parkingForm').submit(function(event) {
                 event.preventDefault(); // 防止表單正常提交
 
