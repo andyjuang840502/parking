@@ -71,7 +71,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $result = $stmt->get_result();
     $row = $result->fetch_assoc();
     $parking_count = $row['count'];
-
+    $stmt->close();
     // 判斷退場
     $sql = "SELECT COUNT(*) AS count FROM parking WHERE ? BETWEEN ParkingDay AND BackDay";
     $stmt = $conn->prepare($sql);
@@ -80,10 +80,22 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $result = $stmt->get_result();
     $row = $result->fetch_assoc();
     $parking_exit_count = $row['count'];
+    $stmt->close();
     //==============查詢停車欄位 是否還有停車位可預約===========//
 
-    $count = $reservation_count + $parking_count;
-    $exit_count = $reservation_exit_count + $parking_exit_count;
+    //==============查詢車位是否有被停=========================//
+    $sql = "SELECT * FROM parking WHERE ParkingNumber = ? AND ((ParkingDay <= ? AND BackDay >= ?) OR (ParkingDay >= ? AND ParkingDay <= ?) OR (BackDay >= ? AND BackDay <= ?))";
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("sssssss", $parking_number, $entry_time, $entry_time, $entry_time, $exit_time, $exit_time, $exit_time);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    $parking_exists = $result->num_rows > 0; // 如果有相應的記錄，則為 true；否則為 false
+    $stmt->close();
+    //==============查詢車位是否有被停=========================//
+
+
+    $count = $reservation_count + $parking_count;  //進場：預約+已停車數量
+    $exit_count = $reservation_exit_count + $parking_exit_count;  //退場：預約+ 
 
     if ($count >= $parking_amount or $exit_count >= $parking_amount) {
         $response = array("message" => "抱歉，停車場已滿！");
@@ -97,6 +109,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $response = array("message" => "出境人數不得為負！");
     } elseif ($immigration_people < 0) {
         $response = array("message" => "入境人數不得為負！");
+    } elseif ($parking_exists) {
+        $response = array("message" => "該車位已有停車，請填寫其他車位！");
     } else {
         // SQL 插入語句
         $sql = "INSERT INTO parking (Number, Name, Phone, LicensePlateNumber, Milage, ParkingNumber, Emigrantiot, EmigrantiotPeople, Immigration, ImmigrationPeople, BackDay, BigPackage, SmallPackage, BallTool, SkiBoard, OtherObject, ParkingDay) 

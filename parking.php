@@ -136,7 +136,11 @@
         <input type="number" name="immigration_people" id="immigration_people"><br><br>
 
         <label for="back_day">回國日期及時間 (BackDay)：</label>
-        <input type="datetime-local" name="back_day" id="back_day"><br><br>
+        <input type="datetime-local" name="back_day" id="back_day">
+        <span class="required">*</span>
+        <span class="tooltip">
+            <span class="tooltiptext">此為必填欄位</span>
+        </span><br><br>
 
         <label for="big_package">行李件數(大) (BigPackage)：</label>
         <input type="number" name="big_package" id="big_package"><br><br>
@@ -154,7 +158,11 @@
         <input type="text" name="other_object" id="other_object"><br><br>
 
         <label for="parking_day">進場日期 (ParkingDay)：</label>
-        <input type="datetime-local" name="parking_day" id="parking_day"><br><br>
+        <input type="datetime-local" name="parking_day" id="parking_day">
+        <span class="required">*</span>
+        <span class="tooltip">
+            <span class="tooltiptext">此為必填欄位</span>
+        </span><br><br>
         
         <input type="submit" name="submit" value="提交">
     </form>
