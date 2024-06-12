@@ -84,15 +84,14 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     //==============查詢停車欄位 是否還有停車位可預約===========//
 
     //==============查詢車位是否有被停=========================//
-    $sql = "SELECT * FROM parking WHERE ParkingNumber = ? AND ((ParkingDay <= ? AND BackDay >= ?) OR (ParkingDay >= ? AND ParkingDay <= ?) OR (BackDay >= ? AND BackDay <= ?))";
+    $sql = "SELECT * FROM parking WHERE ParkingNumber = ? AND BackDay >= ?";
     $stmt = $conn->prepare($sql);
-    $stmt->bind_param("sssssss", $parking_number, $entry_time, $entry_time, $entry_time, $exit_time, $exit_time, $exit_time);
+    $stmt->bind_param("ss", $parking_number, $now);
     $stmt->execute();
     $result = $stmt->get_result();
     $parking_exists = $result->num_rows > 0; // 如果有相應的記錄，則為 true；否則為 false
     $stmt->close();
     //==============查詢車位是否有被停=========================//
-
 
     $count = $reservation_count + $parking_count;  //進場：預約+已停車數量
     $exit_count = $reservation_exit_count + $parking_exit_count;  //退場：預約+ 
@@ -109,7 +108,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $response = array("message" => "出境人數不得為負！");
     } elseif ($immigration_people < 0) {
         $response = array("message" => "入境人數不得為負！");
-    } elseif ($parking_exists) {
+    } elseif ($parking_exists <> 0) {
         $response = array("message" => "該車位已有停車，請填寫其他車位！");
     } else {
         // SQL 插入語句
