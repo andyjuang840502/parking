@@ -10,7 +10,7 @@ if ($conn->connect_error) {
     die("連接失敗：" . $conn->connect_error);
 }
 
-$parking_amount = 10; //停車場總停車格數
+$parking_amount = 5; //停車場總停車格數
 $count = 0; //停車場停放+預約數量
 
 $stmt_select = null;
@@ -106,7 +106,7 @@ if (!empty($name) && !empty($phone) && !empty($license_plate) && !empty($entry_t
         }
     } else { //如果有流水號，表示已經有預約過，此為修改預約需求
         // 判斷停車場剩餘數量
-        if ($count >= $parking_amount or $exit_count >= $parking_amount) {
+        if ($count >= ($parking_amount+1) or $exit_count >= ($parking_amount+1)) {
             $response = array("message" => "抱歉，停車場已滿，請選擇其他時間預約！");
         } elseif ($entry_time_stamp < $now) {
             $response = array("message" => "預約進場時間不能是過去！");

@@ -121,7 +121,8 @@
                 },
                 error: function(xhr, status, error) {
                     console.error('AJAX Error:', error);
-                    console.log(xhr); // 在控制台中輸出 xhr 對象的內容
+                    console.log('Server response:', xhr.responseText); // 顯示伺服器回應的內容
+                    alert('發生了一些問題，請稍後再試！'); // 或者顯示一個友好的錯誤訊息給用戶
                 }
             });
         }
