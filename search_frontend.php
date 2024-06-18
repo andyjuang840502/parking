@@ -106,6 +106,11 @@
 
         // 定義進場記錄函數
         function enterRecord(record) {
+            // 將記錄轉換為 JSON 格式，並將其作為查詢參數傳遞到 reservation.php
+            window.location.href = "parking.php?record=" + encodeURIComponent(JSON.stringify(record));
+        }
+        /*
+        function enterRecord(record) {
             // 將記錄轉換為 JSON 格式，並將其作為查詢參數傳遞到 parking.php
             $.ajax({
                 type: 'POST',
@@ -126,6 +131,7 @@
                 }
             });
         }
+        */
 
         $(document).ready(function() {
             $('#searchForm').submit(function(event) {

@@ -38,7 +38,7 @@
             box-sizing: border-box;
         }
         input[type="submit"] {
-            background-color: #4CAF50; /* 添加吸引人的按鈕顏色 */
+            background-color: #4CAF50; /* 添加吸按鈕顏色 */
             color: white;
             border: none;
             cursor: pointer;
@@ -116,6 +116,13 @@
         <span class="tooltip">
             <span class="tooltiptext">此為必填欄位</span>
         </span><br><br>
+        
+        <label for="parking_day">進場日期 (ParkingDay)：</label>
+        <input type="datetime-local" name="parking_day" id="parking_day">
+        <span class="required">*</span>
+        <span class="tooltip">
+            <span class="tooltiptext">此為必填欄位</span>
+        </span><br><br>
 
         <label for="emigrantiot">出境航廈 (Emigrantiot)：</label>
         <select name="emigrantiot" id="emigrantiot">
@@ -157,13 +164,10 @@
         <label for="other_object">其他物件 (OtherObject)：</label>
         <input type="text" name="other_object" id="other_object"><br><br>
 
-        <label for="parking_day">進場日期 (ParkingDay)：</label>
-        <input type="datetime-local" name="parking_day" id="parking_day">
-        <span class="required">*</span>
-        <span class="tooltip">
-            <span class="tooltiptext">此為必填欄位</span>
-        </span><br><br>
-        
+        <label for="remarks">備註 (Remasks)：</label>
+        <input type="text" name="remasks" id="remasks"><br><br>
+        <br><br>
+        <input type="hidden" name="number_reservation" id="number_reservation" value="<?php echo isset($_GET['number']) ? $_GET['number'] : ''; ?>">
         <input type="submit" name="submit" value="提交">
     </form>
 
@@ -204,6 +208,27 @@
                 });
             });
         });
+
+        // 檢查是否有從搜索頁面傳遞過來的記錄數據
+        $(document).ready(function() {
+            // 檢查是否有從搜索頁面傳遞過來的記錄數據
+            const urlParams = new URLSearchParams(window.location.search);
+            const recordData = urlParams.get('record');
+            if (recordData) {
+                const record = JSON.parse(recordData);
+                // 將記錄填入表單
+                $('#name').val(record.Name);
+                $('#phone').val(record.Phone);
+                $('#license_plate').val(record.LicensePlateNumber);
+                //$('#entry_time').val(record.ReservationDayIn);
+                $('#milage').val(record.Milage);
+                $('#emigrantio_people').val(record.People);
+                $('#back_day').val(record.ReservationDayOut);
+                $('#remasks').val(record.Remasks);
+                //$('#number').val(record.Number);
+            }
+        });
+
     </script>
 </body>
 </html>

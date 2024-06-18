@@ -34,6 +34,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $ski_board = $_POST["ski_board"];
     $other_object = $_POST["other_object"];
     $parking_day = $_POST["parking_day"];
+    $remasks = $_POST["remasks"];
+    $number_reservation = $_POST["number_reservation"];
 
     $now = time();
     $entry_time_stamp = strtotime($parking_day);
@@ -111,17 +113,49 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     } elseif ($parking_exists <> 0) {
         $response = array("message" => "該車位已有停車，請填寫其他車位！");
     } else {
+
+        $stmt = $conn->prepare("INSERT INTO parking (Number, Name, Phone, LicensePlateNumber, Milage, ParkingNumber, Emigrantiot, EmigrantiotPeople, Immigration, ImmigrationPeople, BackDay, BigPackage, SmallPackage, BallTool, SkiBoard, OtherObject, ParkingDay, Remasks) 
+                            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+    
+        // 綁定參數並執行
+        $stmt->bind_param("isssisiiisiiiiiiis", $number, $name, $phone, $license_plate, $milage, $parking_number, $emigrantiot, $emigrantio_people, $immigration, $immigration_people, $back_day, $big_package, $small_package, $ball_tool, $ski_board, $other_object, $parking_day, $remasks);
+        
+        if ($stmt->execute()) {
+            // 插入成功，準備刪除預約紀錄
+            $stmt->close(); // 關閉之前的 prepared statement
+
+            $delete_stmt = $conn->prepare("DELETE FROM `reservation` WHERE Number = ?");
+            $delete_stmt->bind_param("i", $number_reservation);
+            echo $number_reservation;
+            if ($delete_stmt->execute()) {
+                $response = array("message" => "停車登記成功！". $number_reservation, "success" => true);
+            } else {
+                $response = array("message" => "刪除預約紀錄時發生錯誤：" . $delete_stmt->error, "success" => false);
+            }
+            
+            $delete_stmt->close(); // 關閉 prepared statement
+        } else {
+            $response = array("message" => "錯誤：" . $stmt->error, "success" => false);
+        }
+
+        /*
         // SQL 插入語句
-        $sql = "INSERT INTO parking (Number, Name, Phone, LicensePlateNumber, Milage, ParkingNumber, Emigrantiot, EmigrantiotPeople, Immigration, ImmigrationPeople, BackDay, BigPackage, SmallPackage, BallTool, SkiBoard, OtherObject, ParkingDay) 
-                VALUES ('$number', '$name', '$phone', '$license_plate', '$milage', '$parking_number', '$emigrantiot', '$emigrantio_people', '$immigration', '$immigration_people', '$back_day', '$big_package', '$small_package', '$ball_tool', '$ski_board', '$other_object', '$parking_day')";
+        $sql = "INSERT INTO parking (Number, Name, Phone, LicensePlateNumber, Milage, ParkingNumber, Emigrantiot, EmigrantiotPeople, Immigration, ImmigrationPeople, BackDay, BigPackage, SmallPackage, BallTool, SkiBoard, OtherObject, ParkingDay, Remasks) 
+                VALUES ('$number', '$name', '$phone', '$license_plate', '$milage', '$parking_number', '$emigrantiot', '$emigrantio_people', '$immigration', '$immigration_people', '$back_day', '$big_package', '$small_package', '$ball_tool', '$ski_board', '$other_object', '$parking_day', '$remasks')";
 
         // 執行 SQL 插入語句
         if ($conn->query($sql) === TRUE) {
             $response = array("message" => "停車登記成功！", "success" => true);
+
+            $sql = "DELETE FROM `reservation` WHERE Number = $number_reservation"; //刪除預約紀錄
+
+
         } else {
             $response = array("message" => "錯誤：" . $sql . "<br>" . $conn->error, "success" => false);
-        }
+        }*/
     }
+
+    
 
 
     // 關閉連接
