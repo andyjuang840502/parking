@@ -79,12 +79,16 @@
     <h2>停車登記表單</h2>
     <form id="parkingForm" method="post">
 
-        <label for="number">聯單編號 (Number)：</label>
-        <input type="text" name="number" id="number" required>
+        <label for="ID">聯單編號 (ID)：</label>
+        <input type="text" name="ID" id="ID" required>
         <span class="required">*</span>
         <span class="tooltip">
             <span class="tooltiptext">此為必填欄位</span>
         </span><br><br>
+
+        <label for="number">預約單流水號 (ID)：</label>
+        <input type="text" name="number" id="number" required><br><br>
+    
         
         <label for="name">駕駛人 (Name)：</label>
         <input type="text" name="name" id="name" required>
@@ -164,10 +168,11 @@
         <label for="other_object">其他物件 (OtherObject)：</label>
         <input type="text" name="other_object" id="other_object"><br><br>
 
+        
         <label for="remarks">備註 (Remasks)：</label>
         <input type="text" name="remasks" id="remasks"><br><br>
         <br><br>
-        <input type="hidden" name="number_reservation" id="number_reservation" value="<?php echo isset($_GET['number']) ? $_GET['number'] : ''; ?>">
+        //<input type="hidden" name="number" id="number" value="<?php echo isset($_GET['number']) ? $_GET['number'] : ''; ?>">
         <input type="submit" name="submit" value="提交">
     </form>
 
@@ -225,7 +230,7 @@
                 $('#emigrantio_people').val(record.People);
                 $('#back_day').val(record.ReservationDayOut);
                 $('#remasks').val(record.Remasks);
-                //$('#number').val(record.Number);
+                $('#number').val(record.Number);
             }
         });
 

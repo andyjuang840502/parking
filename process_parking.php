@@ -18,6 +18,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
     // 獲取表單數據
     $number = $_POST["number"];
+    $ID = $_POST["ID"];
     $name = $_POST["name"];
     $phone = $_POST["phone"];
     $license_plate = $_POST["license_plate"];
@@ -35,12 +36,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $other_object = $_POST["other_object"];
     $parking_day = $_POST["parking_day"];
     $remasks = $_POST["remasks"];
-    $number_reservation = $_POST["number_reservation"];
+    //$number_reservation = $_POST["number_reservation"];
 
     $now = time();
     $entry_time_stamp = strtotime($parking_day);
     $exit_time_stamp = strtotime($back_day);
 
+    echo "Debug: Number = " . $number . "<br>";
 
     //==============查詢預約欄位 是否還有停車位可預約===========//
     // 判斷進場
@@ -114,26 +116,29 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $response = array("message" => "該車位已有停車，請填寫其他車位！");
     } else {
 
-        $stmt = $conn->prepare("INSERT INTO parking (Number, Name, Phone, LicensePlateNumber, Milage, ParkingNumber, Emigrantiot, EmigrantiotPeople, Immigration, ImmigrationPeople, BackDay, BigPackage, SmallPackage, BallTool, SkiBoard, OtherObject, ParkingDay, Remasks) 
+        $stmt = $conn->prepare("INSERT INTO parking (ID, Name, Phone, LicensePlateNumber, Milage, ParkingNumber, Emigrantiot, EmigrantiotPeople, Immigration, ImmigrationPeople, BackDay, BigPackage, SmallPackage, BallTool, SkiBoard, OtherObject, ParkingDay, Remasks) 
                             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
     
         // 綁定參數並執行
-        $stmt->bind_param("isssisiiisiiiiiiis", $number, $name, $phone, $license_plate, $milage, $parking_number, $emigrantiot, $emigrantio_people, $immigration, $immigration_people, $back_day, $big_package, $small_package, $ball_tool, $ski_board, $other_object, $parking_day, $remasks);
+        $stmt->bind_param("isssisiiisiiiiiiis", $ID, $name, $phone, $license_plate, $milage, $parking_number, $emigrantiot, $emigrantio_people, $immigration, $immigration_people, $back_day, $big_package, $small_package, $ball_tool, $ski_board, $other_object, $parking_day, $remasks);
         
         if ($stmt->execute()) {
             // 插入成功，準備刪除預約紀錄
             $stmt->close(); // 關閉之前的 prepared statement
 
-            $delete_stmt = $conn->prepare("DELETE FROM `reservation` WHERE Number = ?");
-            $delete_stmt->bind_param("i", $number_reservation);
-            echo $number_reservation;
-            if ($delete_stmt->execute()) {
-                $response = array("message" => "停車登記成功！". $number_reservation, "success" => true);
+            // 確認 $number 的值存在且是整數
+            if (isset($number) && is_numeric($number)) {
+                $delete_stmt = $conn->prepare("DELETE FROM `reservation` WHERE Number = ?");
+                $delete_stmt->bind_param("i", $number); // 使用 "i" 來綁定整數型態的參數
+                if ($delete_stmt->execute()) {
+                    $response = array("message" => "停車登記成功！" . $number, "success" => true);
+                } else {
+                    $response = array("message" => "刪除預約紀錄時發生錯誤：" . $delete_stmt->error, "success" => false);
+                }
+                $delete_stmt->close(); // 關閉 prepared statement
             } else {
-                $response = array("message" => "刪除預約紀錄時發生錯誤：" . $delete_stmt->error, "success" => false);
+                $response = array("message" => "無效的預約編號。", "success" => false);
             }
-            
-            $delete_stmt->close(); // 關閉 prepared statement
         } else {
             $response = array("message" => "錯誤：" . $stmt->error, "success" => false);
         }
@@ -147,7 +152,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         if ($conn->query($sql) === TRUE) {
             $response = array("message" => "停車登記成功！", "success" => true);
 
-            $sql = "DELETE FROM `reservation` WHERE Number = $number_reservation"; //刪除預約紀錄
+            $sql = "DELETE FROM `reservation` WHERE Number = $number"; //刪除預約紀錄
 
 
         } else {
