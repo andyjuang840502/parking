@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>晶順停車場 停車登記查詢</title>
+    <title>晶順停車場 預約登記查詢</title>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     <style>
         body {
@@ -76,7 +76,7 @@
     </style>
 </head>
 <body>
-    <h2>停車登記查詢表單</h2>
+    <h2>預約登記查詢表單</h2>
     <form id="searchForm" method="post">
         <label for="name">姓名：</label>
         <input type="text" name="name" id="name"><br><br>
