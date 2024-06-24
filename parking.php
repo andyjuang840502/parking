@@ -85,11 +85,7 @@
         <span class="tooltip">
             <span class="tooltiptext">此為必填欄位</span>
         </span><br><br>
-
-        <label for="number">預約單流水號 (ID)：</label>
-        <input type="text" name="number" id="number" required><br><br>
-    
-        
+      
         <label for="name">駕駛人 (Name)：</label>
         <input type="text" name="name" id="name" required>
         <span class="required">*</span>
@@ -172,7 +168,9 @@
         <label for="remarks">備註 (Remasks)：</label>
         <input type="text" name="remasks" id="remasks"><br><br>
         <br><br>
-        //<input type="hidden" name="number" id="number" value="<?php echo isset($_GET['number']) ? $_GET['number'] : ''; ?>">
+        <!-- 隱藏的流水號欄位 -->
+        <input type="hidden" name="number" id="number" value="<?php echo isset($_GET['number']) ? $_GET['number'] : ''; ?>">
+
         <input type="submit" name="submit" value="提交">
     </form>
 
@@ -231,6 +229,7 @@
                 $('#back_day').val(record.ReservationDayOut);
                 $('#remasks').val(record.Remasks);
                 $('#number').val(record.Number);
+                
             }
         });
 
