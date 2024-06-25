@@ -10,7 +10,7 @@ if ($conn->connect_error) {
     die("連接失敗：" . $conn->connect_error);
 }
 
-$parking_amount = 5; //停車場總停車格數
+$parking_amount = 50; //停車場總停車格數
 $count = 0; //停車場停放+預約數量
 
 $stmt_select = null;
