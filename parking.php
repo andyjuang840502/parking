@@ -128,6 +128,7 @@
         <select name="emigrantiot" id="emigrantiot">
             <option value="第一航廈">第一航廈</option>
             <option value="第二航廈">第二航廈</option>
+            <option value="第二航廈">第三航廈</option>
         </select><br><br>
 
         <label for="emigrantio_people">出境人數 (EmigrantioPeople)：</label>
@@ -137,6 +138,7 @@
         <select name="immigration" id="immigration">
             <option value="第一航廈">第一航廈</option>
             <option value="第二航廈">第二航廈</option>
+            <option value="第二航廈">第三航廈</option>
         </select><br><br>
 
         <label for="immigration_people">入境人數 (ImmigrationPeople)：</label>
