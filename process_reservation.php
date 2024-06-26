@@ -82,9 +82,9 @@ if (!empty($name) && !empty($phone) && !empty($license_plate) && !empty($entry_t
         // 判斷停車場剩餘數量
         if ($count >= $parking_amount or $exit_count >= $parking_amount) {
             $response = array("message" => "抱歉，停車場已滿，請選擇其他時間預約！");
-        } elseif ($entry_time_stamp < $now) {
+        } elseif ($entry_time_stamp < ($now-86400)) {
             $response = array("message" => "預約進場時間不能是過去！");
-        } elseif ($exit_time_stamp < $now) {
+        } elseif ($exit_time_stamp < ($now-86400)) {
             $response = array("message" => "預約離場時間不能是過去！");
         } elseif ($exit_time_stamp < $entry_time_stamp) {
             $response = array("message" => "時間錯誤，請重新輸入！");
@@ -108,9 +108,9 @@ if (!empty($name) && !empty($phone) && !empty($license_plate) && !empty($entry_t
         // 判斷停車場剩餘數量
         if ($count >= ($parking_amount+1) or $exit_count >= ($parking_amount+1)) {
             $response = array("message" => "抱歉，停車場已滿，請選擇其他時間預約！");
-        } elseif ($entry_time_stamp < $now) {
+        } elseif ($entry_time_stamp < ($now-86400)) {
             $response = array("message" => "預約進場時間不能是過去！");
-        } elseif ($exit_time_stamp < $now) {
+        } elseif ($exit_time_stamp < ($now-86400)) {
             $response = array("message" => "預約離場時間不能是過去！");
         } elseif ($exit_time_stamp < $entry_time_stamp) {
             $response = array("message" => "時間錯誤，請重新輸入！");

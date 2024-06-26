@@ -1,0 +1,77 @@
+.table-container {
+    overflow-x: auto;
+    margin-bottom: 20px;
+}
+
+.styled-table {
+    width: 100%;
+    border-collapse: collapse; /* 合併邊框 */
+}
+
+.styled-table th {
+    background-color: #333; /* 深色背景 */
+    color: #fff; /* 白色文字 */
+    padding: 10px;
+    text-align: left;
+}
+
+.styled-table td, .styled-table th {
+    border: 1px solid #ddd; /* 添加邊框 */
+    padding: 10px;
+}
+
+.styled-table tbody tr:nth-of-type(even) {
+    background-color: #f2f2f2; /* 灰色背景 */
+}
+
+.column-width {
+    width: 1%; /* 使用百分比設置寬度 */
+    word-wrap: break-word; /* 斷詞，避免長字串超出單元格 */
+}
+
+.resizable {
+    resize: both; /* 允許垂直和水平拉伸 */
+    overflow: auto; /* 滾動條顯示 */
+    min-width: 150px; /* 最小寬度 */
+    max-width: 500px; /* 最大寬度 */
+    min-height: 40px; /* 最小高度 */
+    max-height: 200px; /* 最大高度 */
+}
+
+.wrap{
+    overflow:hidden;
+    border-radius:10px 10px 0px 0px;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.35);
+  }
+  
+  table{
+    font-family: 'Oswald', sans-serif;
+    border-collapse:collapse;
+  
+  }
+  
+  th{
+    background-color:#009879;
+    color:#ffffff;
+    width:25vw;
+    height:75px;
+  }
+  
+  td{
+    background-color:#ffffff;
+    width:25vw;
+    height:50px;
+    text-align:center;
+  }
+  
+  tr{
+    border-bottom: 1px solid #dddddd;
+  }
+  
+  tr:last-of-type{
+    border-bottom: 2px solid #009879;
+  }
+  
+  tr:nth-of-type(even) td{
+    background-color:#f3f3f3;
+  }

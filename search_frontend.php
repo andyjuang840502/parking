@@ -3,6 +3,7 @@
 <head>
     <title>晶順停車場 預約登記查詢</title>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <link rel="stylesheet" href="style.css">
     <style>
         body {
             background-image: url('background_image.jpg'); /* 添加背景圖片 */
@@ -174,7 +175,7 @@
                     });
                     html += "</table>";
                 } else {
-                    html += "<p>未找到匹配的記錄。</p>";
+                    html += "<p>未找到匹配的預約記錄。</p>";
                 }
                 $('#searchResults').html(html);
             }

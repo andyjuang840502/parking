@@ -1,3 +1,28 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>晶順停車場 停車查詢總表</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <link rel="stylesheet" href="style.css"> <!-- 引入外部 CSS 檔案 -->
+    <style>
+        .toggle-arrow {
+            cursor: pointer;
+        }
+        .table-container {
+            margin-bottom: 20px;
+        }
+        .arrow-down {
+            display: none;
+        }
+        .arrow-down.show {
+            display: inline-block;
+        }
+        .arrow-up.show {
+            display: none;
+        }
+    </style>
+</head>
+<body>
 <?php
 // 包含資料庫連接文件
 require_once "config.php";
@@ -14,29 +39,31 @@ if ($conn->connect_error) {
 if (isset($_GET['date'])) {
     $search_date = $_GET['date'];
 
-    // 預設的 SQL 查詢
-    $sql = "SELECT * FROM reservation WHERE ReservationDayIn LIKE '%$search_date%'";
+    // 預設的 SQL 查詢 - reservation 表
+    $sql_reservation = "SELECT * FROM reservation WHERE ReservationDayIn <= ? AND ReservationDayOut >= ?";
+    $stmt_reservation = $conn->prepare($sql_reservation);
+    $stmt_reservation->bind_param("ss", $search_date, $search_date);
+    $stmt_reservation->execute();
+    $result_reservation = $stmt_reservation->get_result();
 
-    // 執行 SQL 查詢
-    $result = $conn->query($sql);
-
-    // 檢查是否查詢成功
-    if ($result === false) {
+    // 檢查是否查詢成功 - reservation 表
+    if ($result_reservation === false) {
         echo "查詢失敗: " . $conn->error;
         exit; // 終止腳本執行
     }
 
-    // 檢查查詢結果
-    if ($result->num_rows > 0) {
-        // 如果有查詢到結果，顯示表格
-        echo "<h2>Search Results</h2>";
-        echo "<div class='table-container'>";
+    // 顯示 reservation 表格
+    if ($result_reservation->num_rows > 0) {
+        echo "<div class='toggle-arrow' onclick='toggleTable(\"reservation-table\")'>";
+        echo "<span>.$search_date 的預約查詢結果</span> ";
+        echo "<span class='arrow-up show'>&#9650;</span>";
+        echo "<span class='arrow-down'>&#9660;</span>";
+        echo "</div>";
+        echo "<div id='reservation-table' class='table-container'>";
         echo "<table border='1'>";
         echo "<thead><tr><th>姓名</th><th>電話</th><th>預約進場日期</th><th>車牌號碼</th><th>里程數</th><th>人數</th><th>預約離場時間</th><th>備註</th><th>操作</th></tr></thead>";
         echo "<tbody>";
-
-        // 遍歷每條結果並添加到表格中
-        while ($row = $result->fetch_assoc()) {
+        while ($row = $result_reservation->fetch_assoc()) {
             echo "<tr>";
             echo "<td class='column-width'>" . htmlspecialchars($row['Name']) . "</td>";
             echo "<td class='column-width'>" . htmlspecialchars($row['Phone']) . "</td>";
@@ -49,19 +76,78 @@ if (isset($_GET['date'])) {
             echo "<td class='column-width'>";
             echo "<button onclick='enterRecord(" . json_encode($row) . ")'>進場</button> ";
             echo "<button onclick='editRecord(" . json_encode($row) . ")'>修改</button> ";
-            //echo "<button onclick='deleteRecord(" . $row['ID'] . ")'>刪除</button>";
             echo "</td>";
             echo "</tr>";
         }
         echo "</tbody></table>";
-        echo "</table>";
+        echo "</div>";
     } else {
-        // 如果查詢結果為空，顯示提示訊息
-        echo "查無相關資料";
+        echo "<p>查無相關預約資料</p>";
     }
 
-    // 釋放結果集
-    $result->free();
+    // 釋放 reservation 結果集
+    $result_reservation->free();
+
+    // SQL 查詢 - parking 表
+    $sql_parking = "SELECT * FROM parking WHERE ParkingDay <= ? AND BackDay >= ?";
+    $stmt_parking = $conn->prepare($sql_parking);
+    $stmt_parking->bind_param("ss", $search_date, $search_date);
+    $stmt_parking->execute();
+    $result_parking = $stmt_parking->get_result();
+
+    // 檢查是否查詢成功 - parking 表
+    if ($result_parking === false) {
+        echo "查詢失敗: " . $conn->error;
+        exit; // 終止腳本執行
+    }
+
+    // 顯示 parking 表格
+    if ($result_parking->num_rows > 0) {
+        $cost = 100;
+        echo "<div class='toggle-arrow' onclick='toggleTable(\"parking-table\")'>";
+        echo "<span>$search_date 的停車記錄查詢結果</span> ";
+        echo "<span class='arrow-up show'>&#9650;</span>";
+        echo "<span class='arrow-down'>&#9660;</span>";
+        echo "</div>";
+        echo "<div id='parking-table' class='table-container'>";
+        echo "<table border='1'>";
+        echo "<thead><tr><th>聯單編號</th><th>姓名</th><th>連絡電話</th><th>車牌號碼</th><th>里程數</th><th>停車位</th><th>進場時間</th><th>回國時間</th><th>出境航廈</th><th>出境人數</th><th>入境航廈</th><th>入境人數</th><th>行李件數(大)</th><th>行李件數(小)</th><th>球具</th><th>滑雪(衝浪)板</th><th>其他物件</th><th>費用估算</th><th>備註</th><th>操作</th></tr></thead>";
+        echo "<tbody>";
+        while ($row = $result_parking->fetch_assoc()) {
+            echo "<tr>";
+            echo "<td class='column-width'>" . htmlspecialchars($row['ID']) . "</td>";
+            echo "<td class='column-width'>" . htmlspecialchars($row['Name']) . "</td>";
+            echo "<td class='column-width'>" . htmlspecialchars($row['Phone']) . "</td>";
+            echo "<td class='column-width'>" . htmlspecialchars($row['LicensePlateNumber']) . "</td>";
+            echo "<td class='column-width'>" . htmlspecialchars($row['Milage']) . "</td>";
+            echo "<td class='column-width'>" . htmlspecialchars($row['ParkingNumber']) . "</td>";
+            echo "<td class='column-width'>" . htmlspecialchars($row['ParkingDay']) . "</td>";
+            echo "<td class='column-width'>" . htmlspecialchars($row['BackDay']) . "</td>";
+            echo "<td class='column-width'>" . htmlspecialchars($row['Emigrantiot']) . "</td>";
+            echo "<td class='column-width'>" . htmlspecialchars($row['EmigrantiotPeople']) . "</td>";
+            echo "<td class='column-width'>" . htmlspecialchars($row['Immigration']) . "</td>";
+            echo "<td class='column-width'>" . htmlspecialchars($row['ImmigrationPeople']) . "</td>";
+            echo "<td class='column-width'>" . htmlspecialchars($row['BigPackage']) . "</td>";
+            echo "<td class='column-width'>" . htmlspecialchars($row['SmallPackage']) . "</td>";
+            echo "<td class='column-width'>" . htmlspecialchars($row['BallTool']) . "</td>";
+            echo "<td class='column-width'>" . htmlspecialchars($row['SkiBoard']) . "</td>";
+            echo "<td class='column-width'>" . htmlspecialchars($row['OtherObject']) . "</td>";
+            echo "<td class='column-width'>" . $cost . "</td>";
+            echo "<td class='column-width resizable'>" . htmlspecialchars($row['Remasks']) . "</td>";
+            echo "<td class='column-width'>";
+            echo "<button onclick='editparkingRecord(" . json_encode($row) . ")'>修改資料</button> ";
+            echo "<button onclick='exitRecord(" . json_encode($row) . ")'>離場結算</button> ";
+            echo "</td>";
+            echo "</tr>";
+        }
+        echo "</tbody></table>";
+        echo "</div>";
+    } else {
+        echo "<p>查無相關停車記錄資料</p>";
+    }
+
+    // 釋放 parking 結果集
+    $result_parking->free();
 } else {
     // 如果沒有收到日期的參數，顯示錯誤訊息或其他處理
     echo "查無相關資料";
@@ -70,61 +156,47 @@ if (isset($_GET['date'])) {
 // 關閉資料庫連接
 $conn->close();
 ?>
-
-<!-- CSS 樣式 -->
-<style>
-.table-container {
-    overflow-x: auto;
-    margin-bottom: 20px;
-}
-
-.styled-table {
-    width: 100%;
-    border-collapse: collapse;
-    border: 1px solid #ddd;
-    background-color: #f3f3f3; /* 設置表格背景顏色 */
-}
-
-.styled-table thead th {
-    background-color: #f2f2f2;
-    border: 1px solid #ddd;
-    padding: 10px;
-    text-align: left;
-}
-
-.styled-table tbody td {
-    border: 1px solid #ddd;
-    padding: 10px;
-    text-align: left;
-    background-color: #ffffff; /* 設置內容背景顏色 */
-}
-
-.column-width {
-    width: 150px; /* 設置固定寬度 */
-    word-wrap: break-word; /* 斷詞，避免長字串超出單元格 */
-}
-
-.resizable {
-    resize: both; /* 允許垂直和水平拉伸 */
-    overflow: auto; /* 滾動條顯示 */
-    min-width: 150px; /* 最小寬度 */
-    max-width: 500px; /* 最大寬度 */
-    min-height: 40px; /* 最小高度 */
-    max-height: 200px; /* 最大高度 */
-}
-</style>
-
 <!-- JavaScript -->
 <script>
-// 定義修改記錄函數
-function editRecord(record) {
-    // 將記錄轉換為 JSON 格式，並將其作為查詢參數傳遞到 reservation.php
-    window.location.href = "reservation.php?record=" + encodeURIComponent(JSON.stringify(record));
-}
+    // 定義修改記錄函數
+    function editRecord(record) {
+        // 將記錄轉換為 JSON 格式，並將其作為查詢參數傳遞到 reservation.php
+        window.location.href = "reservation.php?record=" + encodeURIComponent(JSON.stringify(record));
+    }
 
-// 定義進場記錄函數
-function enterRecord(record) {
-    // 將記錄轉換為 JSON 格式，並將其作為查詢參數傳遞到 parking.php
-    window.location.href = "parking.php?record=" + encodeURIComponent(JSON.stringify(record));
-}
+    // 定義進場記錄函數
+    function enterRecord(record) {
+        // 將記錄轉換為 JSON 格式，並將其作為查詢參數傳遞到 parking.php
+        window.location.href = "parking.php?record=" + encodeURIComponent(JSON.stringify(record));
+    }
+
+    // 定義停車修改函數
+    function editParkingRecord(record) {
+        // 將記錄轉換為 JSON 格式，並將其作為查詢參數傳遞到 parking.php
+        window.location.href = "parking.php?record=" + encodeURIComponent(JSON.stringify(record));
+    }
+
+    // 定義進場記錄函數
+    function exitRecord(record) {
+        // 將記錄轉換為 JSON 格式，並將其作為查詢參數傳遞到 parking.php
+        window.location.href = "parking.php?record=" + encodeURIComponent(JSON.stringify(record));
+    }
+
+    function toggleTable(tableId) {
+        var table = document.getElementById(tableId);
+        var arrowUp = table.previousElementSibling.querySelector('.arrow-up');
+        var arrowDown = table.previousElementSibling.querySelector('.arrow-down');
+
+        if (table.style.display === 'none' || table.style.display === '') {
+            table.style.display = 'block';
+            arrowUp.style.display = 'inline-block';
+            arrowDown.style.display = 'none';
+        } else {
+            table.style.display = 'none';
+            arrowUp.style.display = 'none';
+            arrowDown.style.display = 'inline-block';
+        }
+    }
 </script>
+</body>
+</html>

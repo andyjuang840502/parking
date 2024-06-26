@@ -83,7 +83,18 @@
 
         <input type="submit" name="submit" value="查詢">
     </form>
+    <script>
+        // JavaScript部分
+        document.addEventListener('DOMContentLoaded', function() {
+            var today = new Date();
+            var dd = String(today.getDate()).padStart(2, '0');
+            var mm = String(today.getMonth() + 1).padStart(2, '0'); // January is 0!
+            var yyyy = today.getFullYear();
 
+            var todayFormatted = yyyy + '-' + mm + '-' + dd;
+            document.getElementById('date').value = todayFormatted;
+        });
+    </script>
     
 </body>
 </html>
