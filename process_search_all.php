@@ -135,7 +135,7 @@ if (isset($_GET['date'])) {
             echo "<td class='column-width'>" . $cost . "</td>";
             echo "<td class='column-width resizable'>" . htmlspecialchars($row['Remasks']) . "</td>";
             echo "<td class='column-width'>";
-            echo "<button onclick='editparkingRecord(" . json_encode($row) . ")'>修改資料</button> ";
+            echo "<button onclick='editParkingRecord(" . json_encode($row) . ")'>修改資料</button> ";
             echo "<button onclick='exitRecord(" . json_encode($row) . ")'>離場結算</button> ";
             echo "</td>";
             echo "</tr>";
@@ -173,7 +173,7 @@ $conn->close();
     // 定義停車修改函數
     function editParkingRecord(record) {
         // 將記錄轉換為 JSON 格式，並將其作為查詢參數傳遞到 parking.php
-        window.location.href = "parking.php?record=" + encodeURIComponent(JSON.stringify(record));
+        window.location.href = "parking_edit.php?record=" + encodeURIComponent(JSON.stringify(record));
     }
 
     // 定義進場記錄函數
