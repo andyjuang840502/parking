@@ -136,7 +136,7 @@ if (isset($_GET['date'])) {
             echo "<td class='column-width resizable'>" . htmlspecialchars($row['Remasks']) . "</td>";
             echo "<td class='column-width'>";
             echo "<button onclick='editParkingRecord(" . json_encode($row) . ")'>修改資料</button> ";
-            echo "<button onclick='exitRecord(" . json_encode($row) . ")'>離場結算</button> ";
+            echo "<button onclick='exitRecord(" . htmlspecialchars(json_encode($row)) . ")'>離場結算</button> ";
             echo "</td>";
             echo "</tr>";
         }
@@ -176,10 +176,24 @@ $conn->close();
         window.location.href = "parking_edit.php?record=" + encodeURIComponent(JSON.stringify(record));
     }
 
-    // 定義進場記錄函數
+    // 定義離場結算記錄函數
     function exitRecord(record) {
-        // 將記錄轉換為 JSON 格式，並將其作為查詢參數傳遞到 parking.php
-        window.location.href = "parking.php?record=" + encodeURIComponent(JSON.stringify(record));
+        var form = document.createElement('form');
+        form.method = 'post';
+        form.action = 'parking_exit.php';
+
+        // 將記錄作為表單中的隱藏輸入
+        var input = document.createElement('input');
+        input.type = 'hidden';
+        input.name = 'record';
+        input.value = JSON.stringify(record);
+        form.appendChild(input);
+
+        // 可以加入其他需要的表單數據
+
+        // 將表單加入到文檔中並提交
+        document.body.appendChild(form);
+        form.submit();
     }
 
     function toggleTable(tableId) {
