@@ -1,56 +1,54 @@
-<?php
-// 包含資料庫配置檔案
-require_once "config.php";
+<!DOCTYPE html>
+<html>
+<head>
+    <title>停車場離場結算</title>
+    <link rel="stylesheet" href="style.css"> <!-- 引入外部 CSS 檔案 -->
+    <style>
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        th, td {
+            padding: 8px;
+            text-align: left;
+            border: 1px solid #ddd;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h2>停車場離場結算明細</h2>
 
-use PhpOffice\PhpSpreadsheet\Spreadsheet;
-use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
-
-// 確保資料是透過 POST 方法接收
-if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    // 從請求主體中解碼 JSON 資料
-    $json_data = file_get_contents("php://input");
-    $record = json_decode($json_data, true); // 解碼為關聯陣列
-
-    if ($record && isset($record['ID'])) {
-        // 提取停車記錄中的相關數據
-        $id = $record['ID'];
-        $name = $record['Name'];
-        $license_plate = $record['LicensePlateNumber'];
-
-        // 取得目前時間作為離場時間
-        $exit_time = date("Y-m-d H:i:s");
-
-        // 在這裡您可以進行需要的數據處理，例如更新數據庫中的離場時間，計算費用等操作
-
-        // 以下示例將數據輸出為 Excel 文件
-
-        // 創建新的 PhpSpreadsheet 物件
-        $spreadsheet = new Spreadsheet();
-        $sheet = $spreadsheet->getActiveSheet();
-
-        // 設置列標題
-        $sheet->setCellValue('A1', '聯單編號');
-        $sheet->setCellValue('B1', '姓名');
-        $sheet->setCellValue('C1', '車牌');
-        $sheet->setCellValue('D1', 'ExitTime');
-
-        // 設置資料行
-        $sheet->setCellValue('A2', $id);
-        $sheet->setCellValue('B2', $name);
-        $sheet->setCellValue('C2', $license_plate);
-        $sheet->setCellValue('D2', $exit_time);
-
-        // 儲存為 Excel 2007 格式 (.xlsx)
-        $filename = 'exit_data_' . date('Ymd') . '.xlsx';
-        $writer = new Xlsx($spreadsheet);
-        header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
-        header('Content-Disposition: attachment; filename="' . $filename . '"');
-        $writer->save('php://output');
-        exit;
+    <?php
+    if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['record'])) {
+        $record = json_decode($_POST['record'], true);
+        if ($record) {
+            echo "<table>";
+            echo "<tr><th colspan='2'>基本資訊</th></tr>";
+            echo "<tr><td>姓名</td><td>" . htmlspecialchars($record['Name']) . "</td></tr>";
+            echo "<tr><td>連絡電話</td><td>" . htmlspecialchars($record['Phone']) . "</td></tr>";
+            echo "<tr><td>車牌號碼</td><td>" . htmlspecialchars($record['LicensePlateNumber']) . "</td></tr>";
+            echo "<tr><td>進場時間</td><td>" . htmlspecialchars($record['ParkingDay']) . "</td></tr>";
+            echo "<tr><td>回國時間</td><td>" . htmlspecialchars($record['BackDay']) . "</td></tr>";
+            echo "<tr><td>停車位</td><td>" . htmlspecialchars($record['ParkingNumber']) . "</td></tr>";
+            echo "<tr><td>估算費用</td><td>" . htmlspecialchars($record['cost']) . "</td></tr>";
+            echo "<tr><td>備註</td><td>" . htmlspecialchars($record['Remasks']) . "</td></tr>";
+            echo "</table>";
+        } else {
+            echo "<p>無法解析收到的資料。</p>";
+        }
     } else {
-        echo "接收到無效的資料或缺少必要的字段。";
+        echo "<p>沒有收到有效的資料。</p>";
     }
-} else {
-    echo "請使用 POST 方法訪問此頁面。";
-}
-?>
+    ?>
+</div>
+</body>
+</html>
