@@ -28,10 +28,41 @@
     <h2>停車場離場結算明細</h2>
 
     <?php
-    $cost = 100;
+    // 連接到 MySQL 伺服器
+    require_once "config.php";
+
+    // 創建連接
+    $conn = new mysqli($servername, $username, $password, $database);
+
+    // 檢查連接是否成功
+    if ($conn->connect_error) {
+        die("連接失敗: " . $conn->connect_error);
+    }
+
+    // 查詢每日費率
+    $sql = "SELECT daily_rate FROM price";
+    $result = $conn->query($sql);
+
+    if ($result->num_rows > 0) {
+        // 獲取每日費率
+        $row = $result->fetch_assoc();
+        $cost = $row["daily_rate"];
+    } else {
+        $cost = "未設定費用";
+    }
+
+    // 檢查是否收到有效的 POST 數據
     if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['record'])) {
         $record = json_decode($_POST['record'], true);
         if ($record) {
+            // 計算停車天數和總費用
+            $parkingStartDate = new DateTime($record['ParkingDay']);
+            $backDate = new DateTime($record['BackDay']);
+            $diff = $backDate->diff($parkingStartDate);
+            $totalDays = $diff->days;
+            $totalCost = $cost * $totalDays;
+
+            // 輸出停車場離場結算明細表格
             echo "<table>";
             echo "<tr><th colspan='2'>基本資訊</th></tr>";
             echo "<tr><td>姓名</td><td>" . htmlspecialchars($record['Name']) . "</td></tr>";
@@ -40,7 +71,9 @@
             echo "<tr><td>進場時間</td><td>" . htmlspecialchars($record['ParkingDay']) . "</td></tr>";
             echo "<tr><td>回國時間</td><td>" . htmlspecialchars($record['BackDay']) . "</td></tr>";
             echo "<tr><td>停車位</td><td>" . htmlspecialchars($record['ParkingNumber']) . "</td></tr>";
-            echo "<tr><td>估算費用</td><td>" . htmlspecialchars($cost) . "</td></tr>";
+            echo "<tr><td>每日費率</td><td>" . htmlspecialchars($cost) . " 元</td></tr>";
+            echo "<tr><td>停車天數</td><td>" . htmlspecialchars($totalDays) . " 天</td></tr>";
+            echo "<tr><td>總共費用</td><td>" . htmlspecialchars($totalCost) . " 元</td></tr>";
             echo "<tr><td>備註</td><td>" . htmlspecialchars($record['Remasks']) . "</td></tr>";
             echo "</table>";
         } else {
@@ -49,6 +82,9 @@
     } else {
         echo "<p>沒有收到有效的資料。</p>";
     }
+
+    // 關閉資料庫連接
+    $conn->close();
     ?>
 
     <!-- 返回按鈕 -->
@@ -59,7 +95,6 @@
         <input type="hidden" name="record" value="<?php echo htmlspecialchars(json_encode($record)); ?>">
         <button type="submit" style="margin-top: 10px;">產出離場報表</button>
     </form>
-
 
 </div>
 </body>
