@@ -4,6 +4,10 @@ require_once 'C:/composer/vendor/autoload.php';
 
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
+use PhpOffice\PhpSpreadsheet\Style\Border;
+use PhpOffice\PhpSpreadsheet\Style\Alignment;
+use PhpOffice\PhpSpreadsheet\Style\Fill;
+use PhpOffice\PhpSpreadsheet\Style\Font;
 
 // 檢查是否收到有效的 POST 數據
 if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['record'])) {
@@ -42,7 +46,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['record'])) {
         // 其他費用，這裡可以從表單或其他地方獲取，這裡先假設為固定值
         $otherCost = isset($_POST['otherCost']) ? $_POST['otherCost'] : 0; // 使用者輸入的其他費用
 
-        // 計算估算費用，包括每日費率和其他費用
+        // 計算總計，包括每日費率和其他費用
         $totalCost = $cost * $totalDays + $otherCost;
 
         // 創建新的 Excel 對象
@@ -51,54 +55,86 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['record'])) {
         // 設置 Excel 頁面屬性
         $spreadsheet->getProperties()->setCreator("您的名字")
                                      ->setLastModifiedBy("您的名字")
-                                     ->setTitle("停車場離場報表")
-                                     ->setSubject("停車場離場報表")
-                                     ->setDescription("停車場離場報表")
-                                     ->setKeywords("停車場, 離場, 報表")
-                                     ->setCategory("Report");
+                                     ->setTitle("停車場離場收據")
+                                     ->setSubject("停車場離場收據")
+                                     ->setDescription("停車場離場收據")
+                                     ->setKeywords("停車場, 離場, 收據")
+                                     ->setCategory("Receipt");
 
         // 添加一個工作表
         $sheet = $spreadsheet->getActiveSheet();
-        $sheet->setTitle('報表');
+        $sheet->setTitle('收據');
+
+        // 設置合併儲存格
+        $sheet->mergeCells('C2:D2');
+
+        // 寫入標題
+        $sheet->setCellValue('C2', '晶順停車場 停車明細');
+        $sheet->getStyle('C2')->getFont()->setBold(true)->setSize(26);
+        $sheet->getStyle('C2')->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
+        $sheet->getStyle('C2')->getFill()->setFillType(Fill::FILL_SOLID)->getStartColor()->setARGB('f2f2f2');
 
         // 寫入數據到 Excel 中
-        $sheet->setCellValue('A1', '姓名');
-        $sheet->setCellValue('B1', '連絡電話');
-        $sheet->setCellValue('C1', '車牌號碼');
-        $sheet->setCellValue('D1', '進場時間');
-        $sheet->setCellValue('E1', '回國時間');
-        $sheet->setCellValue('F1', '停車位');
-        $sheet->setCellValue('G1', '其他費用');
-        $sheet->setCellValue('H1', '每日費率');
-        $sheet->setCellValue('I1', '停車天數');
-        $sheet->setCellValue('J1', '估算費用');
-        $sheet->setCellValue('K1', '備註');
-
-        // 將收到的數據寫入 Excel
-        $sheet->setCellValue('A2', htmlspecialchars($record['Name']));
-        $sheet->setCellValue('B2', htmlspecialchars($record['Phone']));
-        $sheet->setCellValue('C2', htmlspecialchars($record['LicensePlateNumber']));
-        $sheet->setCellValue('D2', htmlspecialchars($record['ParkingDay']));
-        $sheet->setCellValue('E2', htmlspecialchars($record['BackDay']));
-        $sheet->setCellValue('F2', htmlspecialchars($record['ParkingNumber']));
-        $sheet->setCellValue('G2', htmlspecialchars($otherCost)); // 其他費用
-        $sheet->setCellValue('H2', htmlspecialchars($cost)); // 每日費率
-        $sheet->setCellValue('I2', htmlspecialchars($totalDays)); // 停車天數
-        $sheet->setCellValue('J2', "=H2*I2+G2"); // 估算費用公式
-        $sheet->setCellValue('K2', htmlspecialchars($record['Remasks']));
+        $sheet->setCellValue('C3', '姓名：');
+        $sheet->setCellValue('D3', htmlspecialchars($record['Name']));
+        $sheet->setCellValue('C4', '聯絡電話：');
+        $sheet->setCellValue('D4', htmlspecialchars($record['Phone']));
+        $sheet->setCellValue('C5', '車牌號碼：');
+        $sheet->setCellValue('D5', htmlspecialchars($record['LicensePlateNumber']));
+        $sheet->setCellValue('C6', '進場時間：');
+        $sheet->setCellValue('D6', htmlspecialchars($record['ParkingDay']));
+        $sheet->setCellValue('C7', '回國時間：');
+        $sheet->setCellValue('D7', htmlspecialchars($record['BackDay']));
+        $sheet->setCellValue('C8', '停車位：');
+        $sheet->setCellValue('D8', htmlspecialchars($record['ParkingNumber']));
+        $sheet->setCellValue('C9', '其他費用：');
+        $sheet->setCellValue('D9', htmlspecialchars($otherCost)); // 其他費用
+        $sheet->setCellValue('C10', '每日費率：');
+        $sheet->setCellValue('D10', htmlspecialchars($cost)); // 每日費率
+        $sheet->setCellValue('C11', '停車天數：');
+        $sheet->setCellValue('D11', htmlspecialchars($totalDays)); // 停車天數
+        $sheet->setCellValue('C12', '總計(新台幣)：');
+        $sheet->setCellValue('D12', "=D10*D11+D9"); // 總計(新台幣)公式
+        $sheet->setCellValue('C13', '備註：');
+        $sheet->setCellValue('D13', htmlspecialchars($record['Remasks']));
 
         // 設置 Excel 外觀格式等
-        $sheet->getStyle('A1:K1')->getFont()->setBold(true);
-        $sheet->getStyle('A1:K1')->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER);
-        $sheet->getStyle('A1:K1')->getFill()->setFillType(\PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID)->getStartColor()->setARGB('f2f2f2');
+        $sheet->getStyle('C2:D2')->getAlignment()->setVertical(Alignment::VERTICAL_CENTER);
+        $sheet->getStyle('C3:D13')->getFont()->setBold(true);
+        $sheet->getStyle('C3:C13')->getAlignment()->setHorizontal(Alignment::HORIZONTAL_RIGHT);
+        $sheet->getStyle('D3:D13')->getAlignment()->setHorizontal(Alignment::HORIZONTAL_LEFT);
 
-        // 設置列寬自適應
-        foreach(range('A','K') as $columnID) {
-            $sheet->getColumnDimension($columnID)->setAutoSize(true);
-        }
+        // 設置底下資料的字體大小為16
+        $sheet->getStyle('C3:D13')->getFont()->setSize(16);
+
+        // 設置列寬
+        $sheet->getColumnDimension('C')->setWidth(35);
+        $sheet->getColumnDimension('D')->setWidth(40);
+
+        // 加上粗外框
+        $highestColumn = $sheet->getHighestColumn();
+        $highestRow = $sheet->getHighestRow();
+        
+        // 上面的停車明細部分
+        $sheet->getStyle('C2:D2')->applyFromArray([
+            'borders' => [
+                'allBorders' => [
+                    'borderStyle' => Border::BORDER_THICK,
+                ],
+            ],
+        ]);
+        
+        // 下面的資料部分
+        $sheet->getStyle('C3:D13')->applyFromArray([
+            'borders' => [
+                'outline' => [
+                    'borderStyle' => Border::BORDER_THICK,
+                ],
+            ],
+        ]);
 
         // 輸出 Excel 文件
-        $filename = '停車場報表_' . date('YmdHis') . '.xlsx'; // 文件名可以自定義，這裡添加了時間戳以確保唯一性
+        $filename = '停車場收據_' . htmlspecialchars($record['Name']) . '_' . date('YmdHis') . '.xlsx'; // 文件名可以自定義，這裡添加了時間戳以確保唯一性
         header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
         header("Content-Disposition: attachment; filename=\"$filename\"");
         header('Cache-Control: max-age=0');
