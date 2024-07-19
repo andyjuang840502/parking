@@ -57,7 +57,7 @@
         if ($record) {
             // 計算停車天數和總費用
             $parkingStartDate = new DateTime($record['ParkingDay']);
-            $backDate = new DateTime($record['BackDay']);
+            $backDate = new DateTime(); // 當下的時間
             $diff = $backDate->diff($parkingStartDate);
             $totalDays = $diff->days;
             $totalCost = $cost * $totalDays;
@@ -69,7 +69,7 @@
             echo "<tr><td>連絡電話</td><td>" . htmlspecialchars($record['Phone']) . "</td></tr>";
             echo "<tr><td>車牌號碼</td><td>" . htmlspecialchars($record['LicensePlateNumber']) . "</td></tr>";
             echo "<tr><td>進場時間</td><td>" . htmlspecialchars($record['ParkingDay']) . "</td></tr>";
-            echo "<tr><td>回國時間</td><td>" . htmlspecialchars($record['BackDay']) . "</td></tr>";
+            echo "<tr><td>離場時間</td><td>" . $backDate->format('Y-m-d H:i:s') . "</td></tr>"; // 當下的時間
             echo "<tr><td>停車位</td><td>" . htmlspecialchars($record['ParkingNumber']) . "</td></tr>";
             echo "<tr><td>每日費率</td><td>" . htmlspecialchars($cost) . " 元</td></tr>";
             echo "<tr><td>停車天數</td><td>" . htmlspecialchars($totalDays) . " 天</td></tr>";
@@ -94,6 +94,18 @@
     <form action="generate_report.php" method="post" style="display: inline;">
         <input type="hidden" name="record" value="<?php echo htmlspecialchars(json_encode($record)); ?>">
         <button type="submit" style="margin-top: 10px;">產出離場報表</button>
+    </form>
+
+    <!-- 結算 -->
+    <form action="parking_history.php" method="post" class="form-group">
+        <input type="hidden" name="record" value="<?php echo htmlspecialchars(json_encode($record)); ?>">
+
+        <!-- 最終金額輸入框 -->
+        <label for="finalCost">最終金額：</label>
+        <input type="number" id="finalCost" name="finalCost" step="any" value="<?php echo htmlspecialchars($totalCost); ?>" required>
+        
+        <!-- 結算按鈕 -->
+        <button type="submit" name="checkout">結算</button>
     </form>
 
 </div>

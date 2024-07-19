@@ -39,7 +39,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['record'])) {
 
         // 計算停車天數
         $parkingStartDate = new DateTime($record['ParkingDay']);
-        $backDate = new DateTime($record['BackDay']);
+        $backDate = new DateTime(); // 當下的時間
         $diff = $backDate->diff($parkingStartDate);
         $totalDays = $diff->days;
 
@@ -83,8 +83,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['record'])) {
         $sheet->setCellValue('D5', htmlspecialchars($record['LicensePlateNumber']));
         $sheet->setCellValue('C6', '進場時間：');
         $sheet->setCellValue('D6', htmlspecialchars($record['ParkingDay']));
-        $sheet->setCellValue('C7', '回國時間：');
-        $sheet->setCellValue('D7', htmlspecialchars($record['BackDay']));
+        $sheet->setCellValue('C7', '離場時間：');
+        $sheet->setCellValue('D7', $backDate->format('Y-m-d H:i:s')); // 當下的時間
         $sheet->setCellValue('C8', '停車位：');
         $sheet->setCellValue('D8', htmlspecialchars($record['ParkingNumber']));
         $sheet->setCellValue('C9', '其他費用：');
@@ -133,12 +133,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['record'])) {
             ],
         ]);
 
-        // 輸出 Excel 文件
+        // 設置 Excel 檔案名稱，包含相關資訊和時間戳
         $filename = '停車場收據_' . htmlspecialchars($record['Name']) . '_' . date('YmdHis') . '.xlsx'; // 文件名可以自定義，這裡添加了時間戳以確保唯一性
         header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
         header("Content-Disposition: attachment; filename=\"$filename\"");
         header('Cache-Control: max-age=0');
 
+        // 儲存 Excel 檔案到輸出流
         $writer = new Xlsx($spreadsheet);
         $writer->save('php://output');
 
