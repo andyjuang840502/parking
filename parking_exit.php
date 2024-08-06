@@ -65,6 +65,7 @@
             // 輸出停車場離場結算明細表格
             echo "<table>";
             echo "<tr><th colspan='2'>基本資訊</th></tr>";
+            echo "<tr><td>聯單編號</td><td>" . htmlspecialchars($record['ID']) . "</td></tr>";
             echo "<tr><td>姓名</td><td>" . htmlspecialchars($record['Name']) . "</td></tr>";
             echo "<tr><td>連絡電話</td><td>" . htmlspecialchars($record['Phone']) . "</td></tr>";
             echo "<tr><td>車牌號碼</td><td>" . htmlspecialchars($record['LicensePlateNumber']) . "</td></tr>";
@@ -97,17 +98,27 @@
     </form>
 
     <!-- 結算 -->
-    <form action="parking_history.php" method="post" class="form-group">
+    <form action="parking_history.php" method="post" class="form-group" onsubmit="return confirmCheckout()">
         <input type="hidden" name="record" value="<?php echo htmlspecialchars(json_encode($record)); ?>">
 
-        <!-- 最終金額輸入框 -->
+        <!-- 最终金额输入框 -->
         <label for="finalCost">最終金額：</label>
         <input type="number" id="finalCost" name="finalCost" step="any" value="<?php echo htmlspecialchars($totalCost); ?>" required>
         
-        <!-- 結算按鈕 -->
+        <!-- 结算按钮 -->
         <button type="submit" name="checkout">結算</button>
     </form>
 
 </div>
+
+    <script>
+        // JavaScript 部分，用于确认结算
+        function confirmCheckout() {
+            return confirm("是否確認結算？");
+        }
+    </script>
 </body>
 </html>
+
+
+

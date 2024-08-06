@@ -9,32 +9,97 @@
             font-family: Arial, sans-serif;
             line-height: 1.6;
             padding: 20px;
+            background-color: #f4f4f4;
+            color: #333;
+            margin: 0;
+        }
+        .container {
+            max-width: 900px;
+            margin: auto;
+            background: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 20px;
+        }
+        .section {
+            margin-bottom: 30px;
+        }
+        .section h2 {
+            font-size: 22px;
+            color: #fff;
+            background-color: #007bff; /* Blue color for Parking Services */
+            border-radius: 5px;
+            padding: 10px;
+            margin-bottom: 15px;
+        }
+        .section.maintenance h2 {
+            color: #fff;
+            background-color: #28a745; /* Green color for Maintenance */
         }
         .links {
-            margin-bottom: 20px;
+            list-style-type: none;
+            padding: 0;
+            margin: 0;
         }
         .links a {
             display: block;
+            padding: 15px;
             margin-bottom: 10px;
             font-size: 18px;
-            color: #007bff; /* Bootstrap blue color */
+            color: #007bff; /* Default link color */
             text-decoration: none;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            transition: background-color 0.3s, color 0.3s;
         }
         .links a:hover {
-            text-decoration: underline;
+            background-color: #007bff;
+            color: #fff;
+        }
+        .section.maintenance .links a {
+            color: #28a745; /* Green color for Maintenance links */
+        }
+        .section.maintenance .links a:hover {
+            background-color: #28a745;
+            color: #fff;
+        }
+        .footer {
+            text-align: center;
+            margin-top: 30px;
+            font-size: 16px;
+            color: #666;
         }
     </style>
 </head>
 <body>
-    <h1>停車服務選項</h1>
-    <div class="links">
-        <a href="http://localhost/xampp/parking/search_all.php" target="_blank">查詢總表</a>
-        <a href="http://localhost/xampp/parking/reservation.php" target="_blank">預約停車</a>
-        <a href="http://localhost/xampp/parking/parking.php" target="_blank">停車登記</a>
-        <a href="http://localhost/xampp/parking/search_frontend.php" target="_blank">預約查詢</a>
-        <a href="http://localhost/xampp/parking/price.php" target="_blank">費率查詢與修改</a>
-        
+    <div class="container">
+        <h1>晶順停車場 停車管理系統</h1>
+        <div class="section">
+            <h2>停車服務選項</h2>
+            <ul class="links">
+                <li><a href="http://localhost/xampp/parking/today.php" target="_blank">今日狀況</a></li>
+                <li><a href="http://localhost/xampp/parking/search_all.php" target="_blank">查詢總表</a></li>
+                <li><a href="http://localhost/xampp/parking/reservation.php" target="_blank">預約停車</a></li>
+                <li><a href="http://localhost/xampp/parking/parking.php" target="_blank">停車登記</a></li>
+                <li><a href="http://localhost/xampp/parking/search_frontend.php" target="_blank">預約查詢</a></li>
+                <li><a href="http://localhost/xampp/parking/history.php" target="_blank">歷史紀錄</a></li>
+            </ul>
+        </div>
+        <div class="section maintenance">
+            <h2>一般維護</h2>
+            <ul class="links">
+                <li><a href="http://localhost/xampp/parking/price.php" target="_blank">費率查詢與修改</a></li>
+                <li><a href="http://localhost/xampp/parking/parking_number.php" target="_blank">停車格管理</a></li>
+            </ul>
+        </div>
+        <div class="footer">
+            <p>歡迎使用我們的停車服務。請選擇上方連結進行相應的操作。</p>
+        </div>
     </div>
-    <p>歡迎使用我們的停車服務。請選擇上方連結進行相應的操作。</p>
 </body>
 </html>

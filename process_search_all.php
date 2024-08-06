@@ -37,10 +37,11 @@ if ($conn->connect_error) {
 
 // 檢查是否有收到日期的 GET 參數
 if (isset($_GET['date'])) {
-    $search_date = $_GET['date'];
+    //$search_date = $_GET['date'];
+    $search_date = date('Y-m-d', strtotime($_GET['date']));
 
     // 預設的 SQL 查詢 - reservation 表
-    $sql_reservation = "SELECT * FROM reservation WHERE ReservationDayIn <= ? AND ReservationDayOut >= ?";
+    $sql_reservation = "SELECT * FROM reservation WHERE DATE(ReservationDayIn) <= ? AND DATE(ReservationDayOut) >= ?";
     $stmt_reservation = $conn->prepare($sql_reservation);
     $stmt_reservation->bind_param("ss", $search_date, $search_date);
     $stmt_reservation->execute();
@@ -55,7 +56,7 @@ if (isset($_GET['date'])) {
     // 顯示 reservation 表格
     if ($result_reservation->num_rows > 0) {
         echo "<div class='toggle-arrow' onclick='toggleTable(\"reservation-table\")'>";
-        echo "<span>.$search_date 的預約查詢結果</span> ";
+        echo "<span>$search_date 的預約查詢結果</span> ";
         echo "<span class='arrow-up show'>&#9650;</span>";
         echo "<span class='arrow-down'>&#9660;</span>";
         echo "</div>";
@@ -76,6 +77,7 @@ if (isset($_GET['date'])) {
             echo "<td class='column-width'>";
             echo "<button onclick='enterRecord(" . json_encode($row) . ")'>進場</button> ";
             echo "<button onclick='editRecord(" . json_encode($row) . ")'>修改</button> ";
+            echo "<button onclick='deleteRecord(" . json_encode($row) . ")'>刪除</button>";
             echo "</td>";
             echo "</tr>";
         }
@@ -89,7 +91,7 @@ if (isset($_GET['date'])) {
     $result_reservation->free();
 
     // SQL 查詢 - parking 表
-    $sql_parking = "SELECT * FROM parking WHERE ParkingDay <= ? AND BackDay >= ?";
+    $sql_parking = "SELECT * FROM parking WHERE DATE(ParkingDay) <= ? AND DATE(BackDay) >= ?";
     $stmt_parking = $conn->prepare($sql_parking);
     $stmt_parking->bind_param("ss", $search_date, $search_date);
     $stmt_parking->execute();
@@ -194,6 +196,24 @@ $conn->close();
         // 將表單加入到文檔中並提交
         document.body.appendChild(form);
         form.submit();
+    }
+
+    // 定義刪除記錄函數
+    function deleteRecord(record) {
+        if (confirm('確定要刪除此預約嗎？')) {
+            var xhr = new XMLHttpRequest();
+            xhr.open("POST", "delete_reservation.php", true);
+            xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+            xhr.onload = function() {
+                if (xhr.status === 200) {
+                    alert('預約已刪除');
+                    location.reload(); // 刪除後重新載入頁面
+                } else {
+                    alert('刪除失敗');
+                }
+            };
+            xhr.send("number=" + encodeURIComponent(record.Number));
+        }
     }
 
     function toggleTable(tableId) {

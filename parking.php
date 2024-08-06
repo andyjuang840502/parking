@@ -111,7 +111,51 @@
         <input type="text" name="milage" id="milage"><br><br>
 
         <label for="parking_number">停車位 (ParkingNumber)：</label>
-        <input type="text" name="parking_number" id="parking_number">
+        <select name="parking_number" id="parking_number" required>
+            <option value="">選擇停車位</option>
+            <?php
+            // 連接到 MySQL 伺服器
+            require_once "config.php";
+
+            // 創建連接
+            $conn = new mysqli($servername, $username, $password, $database);
+
+            // 檢查連接是否成功
+            if ($conn->connect_error) {
+                die("連接失敗: " . $conn->connect_error);
+            }
+
+            // 查詢資料庫中的停車位資料，按照描述分類顯示
+            $sql_select = "SELECT number, description FROM parking_number ORDER BY description";
+            $result = $conn->query($sql_select);
+
+            $current_category = ""; // 用於跟蹤當前分類
+
+            if ($result->num_rows > 0) {
+                while($row = $result->fetch_assoc()) {
+                    // 如果分類變了，加入一個分類的選項
+                    if ($row["description"] !== $current_category) {
+                        // 如果已經有一個分類了，先結束這個分類的optgroup
+                        if ($current_category !== "") {
+                            echo "</optgroup>";
+                        }
+                        // 開始新的分類
+                        echo "<optgroup label='" . $row["description"] . "'>";
+                        $current_category = $row["description"];
+                    }
+                    // 顯示停車位選項
+                    echo "<option value='" . $row["number"] . "'>" . $row["number"] . "</option>";
+                }
+                // 結束最後一個分類的optgroup
+                echo "</optgroup>";
+            } else {
+                echo "<option value=''>沒有可用的停車位</option>";
+            }
+
+            
+            $conn->close();
+            ?>
+        </select>
         <span class="required">*</span>
         <span class="tooltip">
             <span class="tooltiptext">此為必填欄位</span>
