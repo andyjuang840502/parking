@@ -58,8 +58,21 @@
             // 計算停車天數和總費用
             $parkingStartDate = new DateTime($record['ParkingDay']);
             $backDate = new DateTime(); // 當下的時間
+            
+            // 計算兩個日期之間的差異
             $diff = $backDate->diff($parkingStartDate);
+
+            // 計算總天數
             $totalDays = $diff->days;
+
+            // 如果離場時間在進場時間的同一天，也算作一天
+            if ($backDate->format('Y-m-d') === $parkingStartDate->format('Y-m-d')) {
+                $totalDays = 1;
+            } else {
+                // 計算日期差異後加一天
+                $totalDays = $diff->days + 1;
+            }
+            
             $totalCost = $cost * $totalDays;
 
             // 輸出停車場離場結算明細表格
@@ -87,6 +100,7 @@
     // 關閉資料庫連接
     $conn->close();
     ?>
+
 
     <!-- 返回按鈕 -->
     <button onclick="window.history.back();" style="margin-top: 10px;">返回</button>

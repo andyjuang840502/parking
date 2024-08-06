@@ -72,18 +72,8 @@
                 <th>聯單編號</th>
                 <th>駕駛人姓名</th>
                 <th>車牌號碼</th>
-                <th>里程數</th>
-                <th>出境航廈</th>
-                <th>出境人數</th>
-                <th>入境航廈</th>
-                <th>入境人數</th>
                 <th>連絡電話</th>
-                <th>大行李</th>
-                <th>小行李</th>
-                <th>球具</th>
-                <th>滑雪(衝浪)板</th>
-                <th>其他物件</th>
-                <th>x離場時間</th>
+                <th>離場時間</th>
                 <th>停車位</th>
                 <th>進場時間</th>
                 <th>金額</th>
@@ -95,18 +85,8 @@
             echo "<tr>";
             echo "<td>{$row['ID']}</td>";
             echo "<td>{$row['Name']}</td>";
-            echo "<td>{$row['LicensePlateNumber']}</td>";
-            echo "<td>{$row['Milage']}</td>";
-            echo "<td>{$row['Emigrantiot']}</td>";
-            echo "<td>{$row['EmigrantiotPeople']}</td>";
-            echo "<td>{$row['Immigration']}</td>";
-            echo "<td>{$row['ImmigrationPeople']}</td>";
+            echo "<td>{$row['LicensePlateNumber']}</td>";    
             echo "<td>{$row['Phone']}</td>";
-            echo "<td>{$row['BigPackage']}</td>";
-            echo "<td>{$row['SmallPackage']}</td>";
-            echo "<td>{$row['BallTool']}</td>";
-            echo "<td>{$row['SkiBoard']}</td>";
-            echo "<td>{$row['OtherObject']}</td>";
             echo "<td>{$row['BackDay']}</td>";
             echo "<td>{$row['ParkingNumber']}</td>";
             echo "<td>{$row['ParkingDay']}</td>";

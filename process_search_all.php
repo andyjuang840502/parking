@@ -113,7 +113,7 @@ if (isset($_GET['date'])) {
         echo "</div>";
         echo "<div id='parking-table' class='table-container'>";
         echo "<table border='1'>";
-        echo "<thead><tr><th>聯單編號</th><th>姓名</th><th>連絡電話</th><th>車牌號碼</th><th>里程數</th><th>停車位</th><th>進場時間</th><th>回國時間</th><th>出境航廈</th><th>出境人數</th><th>入境航廈</th><th>入境人數</th><th>行李件數(大)</th><th>行李件數(小)</th><th>球具</th><th>滑雪(衝浪)板</th><th>其他物件</th><th>費用估算</th><th>備註</th><th>操作</th></tr></thead>";
+        echo "<thead><tr><th>聯單編號</th><th>姓名</th><th>連絡電話</th><th>車牌號碼</th><th>里程數</th><th>停車位</th><th>進場時間</th><th>回國時間</th><th>出境航廈</th><th>出境人數</th><th>入境航廈</th><th>入境人數</th><th>行李件數(大)</th><th>行李件數(小)</th><th>球具</th><th>滑雪(衝浪)板</th><th>其他物件</th><th>備註</th><th>操作</th></tr></thead>";
         echo "<tbody>";
         while ($row = $result_parking->fetch_assoc()) {
             echo "<tr>";
@@ -134,7 +134,6 @@ if (isset($_GET['date'])) {
             echo "<td class='column-width'>" . htmlspecialchars($row['BallTool']) . "</td>";
             echo "<td class='column-width'>" . htmlspecialchars($row['SkiBoard']) . "</td>";
             echo "<td class='column-width'>" . htmlspecialchars($row['OtherObject']) . "</td>";
-            echo "<td class='column-width'>" . $cost . "</td>";
             echo "<td class='column-width resizable'>" . htmlspecialchars($row['Remasks']) . "</td>";
             echo "<td class='column-width'>";
             echo "<button onclick='editParkingRecord(" . json_encode($row) . ")'>修改資料</button> ";
