@@ -16,7 +16,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     }
 
     if ($conn->query($sql_update) === TRUE) {
-        header("Location: index.php"); // 返回首頁或列表頁
+        // 設置 HTTP 標頭以進行重定向
+        header("Content-Type: text/html; charset=utf-8");
+        echo "<script>
+                alert('停車位修改成功');
+                window.location.href = 'http://localhost/xampp/parking/parking_number.php';
+              </script>";
         exit();
     } else {
         echo "錯誤: " . $sql_update . "<br>" . $conn->error;
