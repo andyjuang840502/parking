@@ -87,7 +87,7 @@ if (!empty($name) && !empty($phone) && !empty($license_plate) && !empty($entry_t
         } elseif ($exit_time_stamp < ($now-86400)) {
             $response = array("message" => "預約離場時間不能是過去！");
         } elseif ($exit_time_stamp < $entry_time_stamp) {
-            $response = array("message" => "時間錯誤，請重新輸入！");
+            $response = array("message" => "離場時間不得早於進場時間！");
         } else {
             // SQL 插入語句
             $sql = "INSERT INTO reservation (Name, Phone, LicensePlateNumber, ReservationDayIn, Milage, People, ReservationDayOut, Remasks) 

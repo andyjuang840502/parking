@@ -230,7 +230,7 @@
         foreach ($categories as $category => $items) {
             echo "<div id='${category}' class='tab-content'>";
             echo "<table class='status-table'>";
-            echo "<tr><th>停車位</th><th>狀態</th><th>姓名</th><th>進場日期</th><th>預計離場日期</th></tr>";
+            echo "<tr><th>停車位</th><th>狀態 / 車牌</th><th>姓名</th><th>進場日期</th><th>預計離場日期</th></tr>";
             foreach ($items as $item) {
                 $class = $item['status'] == '可停車' ? 'available' : 'occupied';
                 echo "<tr class='{$class}'>";
@@ -239,6 +239,14 @@
                 echo "<td>{$item['name']}</td>";
                 echo "<td>{$item['parkingday']}</td>";
                 echo "<td>{$item['backday']}</td>";
+                /*
+                echo "<td>";
+                if ($item['status'] != '可停車') {
+                    echo "<button onclick='editParkingRecord(" . json_encode($item) . ")'>修改資料</button> ";
+                    echo "<button onclick='exitRecord(" . htmlspecialchars(json_encode($item)) . ")'>離場結算</button>";
+                }
+                echo "</td>";
+                */
                 echo "</tr>";
             }
             echo "</table>";

@@ -41,7 +41,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['record'])) {
         $parkingStartDate = new DateTime($record['ParkingDay']);
         $backDate = new DateTime(); // 當下的時間
         $diff = $backDate->diff($parkingStartDate);
-        $totalDays = $diff->days;
+        $totalDays = $diff->days+1;
 
         // 其他費用，這裡可以從表單或其他地方獲取，這裡先假設為固定值
         $otherCost = isset($_POST['otherCost']) ? $_POST['otherCost'] : 0; // 使用者輸入的其他費用
