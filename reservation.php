@@ -106,9 +106,11 @@
             <span class="tooltiptext">此為必填欄位</span>
         </span><br><br>
         
-        <label for="mileage">里程數 (Milage)：</label>
-        <input type="text" name="mileage" id="mileage"><br><br>
-        
+        <!--
+            <label for="mileage">里程數 (Milage)：</label>
+            <input type="text" name="mileage" id="mileage"><br><br>
+        -->
+
         <label for="people_count">人數 (People)：</label>
         <input type="number" name="people_count" id="people_count"><br><br>
         
@@ -118,6 +120,61 @@
         <span class="tooltip">
             <span class="tooltiptext">此為必填欄位</span>
         </span><br><br>
+
+        <label for="departure_terminal">出發航廈 (Departure Terminal)：</label>
+        <select name="departure_terminal" id="departure_terminal">
+            <option value="">不選擇</option>
+            <option value="第一航廈">第一航廈</option>
+            <option value="第二航廈">第二航廈</option>
+            <option value="第三航廈">第三航廈</option>
+        </select><br><br>
+
+        <label for="return_terminal">回國航廈 (Return Terminal)：</label>
+        <select name="return_terminal" id="return_terminal">
+            <option value="">不選擇</option>
+            <option value="第一航廈">第一航廈</option>
+            <option value="第二航廈">第二航廈</option>
+            <option value="第三航廈">第三航廈</option>
+        </select><br><br>
+
+        <label for="arrival_time">回國抵台時間 (Arrival Time in Taiwan)：</label>
+        <input type="date" name="arrival_time" id="arrival_time"><br><br>
+
+        <label for="parking_type">停車位類型 (ParkingType)：</label>
+        <select name="parking_type" id="parking_type" required>
+            <option value="">選擇類型</option>
+            <?php
+            // 連接到 MySQL 伺服器
+            require_once "config.php";
+
+            // 創建連接
+            $conn = new mysqli($servername, $username, $password, $database);
+
+            // 檢查連接是否成功
+            if ($conn->connect_error) {
+                die("連接失敗: " . $conn->connect_error);
+            }
+
+            // 查詢資料庫中的停車位資料，按照描述分類顯示
+            $sql_select = "SELECT DISTINCT description FROM parking_number ORDER BY description";
+            $result = $conn->query($sql_select);
+
+            if ($result->num_rows > 0) {
+                while($row = $result->fetch_assoc()) {
+                    // 顯示 description 的選項
+                    echo "<option value='" . htmlspecialchars($row["description"]) . "'>" . htmlspecialchars($row["description"]) . "</option>";
+                }
+            } else {
+                echo "<option value=''>沒有可用的停車位</option>";
+            }
+
+            $conn->close();
+            ?>
+        </select>
+        <span class="required">*</span>
+        
+        
+
         
         <label for="remarks">備註 (Remasks)：</label>
         <input type="text" name="remasks" id="remasks"><br><br>
@@ -181,11 +238,15 @@
                 $('#phone').val(record.Phone);
                 $('#license_plate').val(record.LicensePlateNumber);
                 $('#entry_time').val(record.ReservationDayIn);
-                $('#mileage').val(record.Milage);
+                //$('#mileage').val(record.Milage);
                 $('#people_count').val(record.People);
                 $('#exit_time').val(record.ReservationDayOut);
                 $('#remasks').val(record.Remasks);
                 $('#number').val(record.Number);
+                $('#departure_terminal').val(record.DepartureTerminal);
+                $('#return_terminal').val(record.ReturnTerminal);
+                $('#arrival_timel').val(record.ArrivalTime);
+                $('#parking_type').val(record.ParkingType);
             }
         });
     </script>

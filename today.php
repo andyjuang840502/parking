@@ -115,7 +115,7 @@
             echo "<div class='result-container'>";
             echo "<h2 class='result-title'>今天的所有預約資料 (共 {$numRows} 筆)：</h2>\n";
             echo "<table>";
-            echo "<tr><th>車牌號碼</th><th>駕駛人姓名</th><th>電話</th><th>里程數</th><th>預約進場日</th><th>預約出場日</th><th>人數</th><th>備註</th><th>操作</th></tr>";
+            echo "<tr><th>車牌號碼</th><th>駕駛人姓名</th><th>電話</th><th>里程數</th><th>預約進場日</th><th>預約出場日</th><th>人數</th><th>出發航廈</th><th>回國航廈</th><th>回國抵台時間</th><th>停車位類型</th><th>備註</th><th>操作</th></tr>";
             while ($row = $resultAllReservations->fetch_assoc()) {
                 echo "<tr>";
                 echo "<td>{$row['LicensePlateNumber']}</td>";
@@ -125,6 +125,10 @@
                 echo "<td>{$row['ReservationDayIn']}</td>";
                 echo "<td>{$row['ReservationDayOut']}</td>";
                 echo "<td>{$row['People']}</td>";
+                echo "<td>{$row['DepartureTerminal']}</td>";
+                echo "<td>{$row['ReturnTerminal']}</td>";
+                echo "<td>{$row['ArrivalTime']}</td>";
+                echo "<td>{$row['ParkingType']}</td>";
                 echo "<td>{$row['Remasks']}</td>";
                 echo "<td><button onclick='enterRecord(" . json_encode($row) . ")'>進場</button> ";
                 echo "<button onclick='editRecord(" . json_encode($row) . ")'>修改</button>";

@@ -107,11 +107,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     } elseif ($exit_time_stamp < ($now-86400)) {
         $response = array("message" => "回國時間不能是過去！");
     } elseif ($exit_time_stamp < $entry_time_stamp) {
-        $response = array("message" => "時間錯誤，請重新輸入！");
+        $response = array("message" => "進場時間不可晚於回國時間！");
     } elseif ($emigrantio_people < 0) {
-        $response = array("message" => "出境人數不得為負！");
+        $response = array("message" => "請填寫出境人數！");
     } elseif ($immigration_people < 0) {
-        $response = array("message" => "入境人數不得為負！");
+        $response = array("message" => "請填寫入境人數！");
     } elseif ($parking_exists <> 0) {
         $response = array("message" => "該車位已有停車，請填寫其他車位！");
     } else {

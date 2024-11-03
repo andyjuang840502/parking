@@ -6,7 +6,7 @@
     <link rel="stylesheet" href="style.css">
     <style>
         body {
-            background-image: url('background_image.jpg'); /* 添加背景圖片 */
+            background-image: url('background_image.jpg');
             background-size: cover;
             font-family: Arial, sans-serif;
             color: #333;
@@ -18,7 +18,7 @@
         form {
             max-width: 400px;
             margin: 0 auto;
-            background-color: rgba(255, 255, 255, 0.8); /* 調整表單背景色 */
+            background-color: rgba(255, 255, 255, 0.8);
             padding: 20px;
             border-radius: 10px;
         }
@@ -39,7 +39,7 @@
             box-sizing: border-box;
         }
         input[type="submit"] {
-            background-color: #4CAF50; /* 添加吸引人的按鈕顏色 */
+            background-color: #4CAF50;
             color: white;
             border: none;
             cursor: pointer;
@@ -50,29 +50,9 @@
         .required {
             color: red;
         }
-        .tooltip {
-            position: relative;
-            display: inline-block;
-        }
-        .tooltip .tooltiptext {
-            visibility: hidden;
-            width: 120px;
-            background-color: #555;
-            color: #fff;
-            text-align: center;
-            border-radius: 6px;
-            padding: 5px;
-            position: absolute;
-            z-index: 1;
-            bottom: 125%;
-            left: 50%;
-            margin-left: -60px;
-            opacity: 0;
-            transition: opacity 0.3s;
-        }
-        .tooltip:hover .tooltiptext {
-            visibility: visible;
-            opacity: 1;
+        .sort-arrow {
+            margin-left: 5px;
+            cursor: pointer;
         }
     </style>
 </head>
@@ -99,46 +79,12 @@
     </div>
 
     <script>
-        // 定義編輯記錄函數
-        function editRecord(record) {
-            // 將記錄轉換為 JSON 格式，並將其作為查詢參數傳遞到 reservation.php
-            window.location.href = "reservation.php?record=" + encodeURIComponent(JSON.stringify(record));
-        }
-
-        // 定義進場記錄函數
-        function enterRecord(record) {
-            // 將記錄轉換為 JSON 格式，並將其作為查詢參數傳遞到 reservation.php
-            window.location.href = "parking.php?record=" + encodeURIComponent(JSON.stringify(record));
-        }
-        /*
-        function enterRecord(record) {
-            // 將記錄轉換為 JSON 格式，並將其作為查詢參數傳遞到 parking.php
-            $.ajax({
-                type: 'POST',
-                url: 'parking.php',
-                data: record,
-                dataType: 'json',
-                success: function(response) {
-                    alert(response.message); // 顯示結果給用戶
-                    if (response.success) {
-                        // 如果成功，重置表單
-                        $('#parkingForm')[0].reset();
-                    }
-                },
-                error: function(xhr, status, error) {
-                    console.error('AJAX Error:', error);
-                    console.log('Server response:', xhr.responseText); // 顯示伺服器回應的內容
-                    alert('發生了一些問題，請稍後再試！'); // 或者顯示一個友好的錯誤訊息給用戶
-                }
-            });
-        }
-        */
+        let sortDirection = { "ReservationDayIn": true, "ReservationDayOut": true }; // true: 升冪，false: 降冪
 
         $(document).ready(function() {
             $('#searchForm').submit(function(event) {
                 event.preventDefault(); // 防止表單正常提交
 
-                // 使用 AJAX 發送數據給服務器
                 $.ajax({
                     url: "search.php", 
                     method: 'POST',
@@ -157,9 +103,8 @@
                 var html = "<h3>查詢結果</h3>";
                 if (data.length > 0) {
                     html += "<table border='1'>";
-                    // 表頭
-                    html += "<tr><th>姓名</th><th>電話</th><th>預約進場日期</th><th>車牌號碼</th><th>里程數</th><th>人數</th><th>預約離場時間</th><th>備註</th></tr>";
-                    // 遍歷每條結果並添加到表格中
+                    html += "<tr><th>姓名</th><th>電話</th><th onclick='sortTable(\"ReservationDayIn\")'>預約進場日期 <span class='sort-arrow'>&#9650;</span></th><th>車牌號碼</th><th>里程數</th><th>人數</th><th onclick='sortTable(\"ReservationDayOut\")'>預約離場時間 <span class='sort-arrow'>&#9650;</span></th><th>備註</th><th>操作</th></tr>";
+                    
                     data.forEach(function(item) {
                         html += "<tr id='row_" + item.ID + "' data-record='" + JSON.stringify(item) + "'>";
                         html += "<td>" + item.Name + "</td>";
@@ -180,6 +125,65 @@
                 $('#searchResults').html(html);
             }
         });
+
+        function sortTable(columnName) {
+            const rows = Array.from(document.querySelectorAll('#searchResults table tr:not(:first-child)'));
+            const direction = sortDirection[columnName] ? 1 : -1; // 升冪或降冪
+
+            rows.sort((a, b) => {
+                const cellA = a.querySelector(`td:nth-child(${columnName === 'ReservationDayIn' ? 3 : 7})`).innerText;
+                const cellB = b.querySelector(`td:nth-child(${columnName === 'ReservationDayIn' ? 3 : 7})`).innerText;
+                return (cellA > cellB ? 1 : -1) * direction;
+            });
+
+            // 清空現有的表格，並添加排序後的行
+            const table = document.querySelector('#searchResults table');
+            const tbody = table.querySelector('tbody') || document.createElement('tbody');
+            tbody.innerHTML = '';
+            rows.forEach(row => tbody.appendChild(row));
+
+            // 如果表格沒有tbody，則創建一個
+            if (!table.querySelector('tbody')) {
+                table.appendChild(tbody);
+            }
+
+            // 更新表格
+            table.appendChild(tbody);
+
+            // 切換排序方向
+            sortDirection[columnName] = !sortDirection[columnName];
+
+            // 更新箭頭顯示
+            const arrows = document.querySelectorAll('.sort-arrow');
+            arrows.forEach(arrow => arrow.innerHTML = '&#9650;'); // 重設所有箭頭
+            const index = columnName === 'ReservationDayIn' ? 2 : 6; // 判斷要顯示的箭頭
+            arrows[index].innerHTML = sortDirection[columnName] ? '&#9650;' : '&#9660;'; // 根據排序方向顯示箭頭
+        }
+
+        function editRecord(record) {
+            window.location.href = "reservation.php?record=" + encodeURIComponent(JSON.stringify(record));
+        }
+
+        function enterRecord(record) {
+            window.location.href = "parking.php?record=" + encodeURIComponent(JSON.stringify(record));
+        }
+
+        function deleteRecord(id) {
+            if (confirm('確定要刪除此預約嗎？')) {
+                var xhr = new XMLHttpRequest();
+                xhr.open("POST", "delete_reservation.php", true);
+                xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+                xhr.onload = function() {
+                    if (xhr.status === 200) {
+                        alert('預約已刪除');
+                        location.reload();
+                    } else {
+                        alert('刪除失敗');
+                    }
+                };
+                xhr.send("id=" + encodeURIComponent(id));
+            }
+        }
     </script>
 </body>
 </html>

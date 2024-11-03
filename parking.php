@@ -159,8 +159,30 @@
         <span class="required">*</span>
         <span class="tooltip">
             <span class="tooltiptext">此為必填欄位</span>
-        </span><br><br>
-        
+        </span>
+
+        <!--
+        <input type="hidden" name="parking_type" id="parking_type" value="<?php echo isset($_GET['parking_type']) ? $_GET['parking_type'] : ''; ?>">
+        <p>預約時選擇的停車位類型為：
+            <?php 
+                if (isset($_GET['parking_type'])) {
+                    $parkingType = $_GET['parking_type'];
+                    // 現在你可以使用 $parkingType 變數
+                    echo htmlspecialchars($parkingType);
+                } ?>
+        </p>
+        <br><br> 
+            -->
+        <label for="parking_type">預約時選擇的停車位類型為：</label>
+        <!-- <input type="parking_type" name="parking_type" id="parking_type"><br><br> -->
+        <select name="parking_type" id="parking_type" required>
+            <option value="無預約資料">無預約資料</option>
+            <option value="室內">室內</option>
+            <option value="戶外">戶外</option>
+            <option value="車棚">車棚</option>
+            <option value="VVI">VVIP</option>
+        </select>
+
         <label for="parking_day">進場日期 (ParkingDay)：</label>
         <input type="datetime-local" name="parking_day" id="parking_day">
         <span class="required">*</span>
@@ -272,9 +294,13 @@
                 //$('#entry_time').val(record.ReservationDayIn);
                 $('#milage').val(record.Milage);
                 $('#emigrantio_people').val(record.People);
-                $('#back_day').val(record.ReservationDayOut);
+                //$('#back_day').val(record.ReservationDayOut);
                 $('#remasks').val(record.Remasks);
                 $('#number').val(record.Number);
+                $('#emigrantiot').val(record.DepartureTerminal);
+                $('#imigrantiot').val(record.ReturnTerminal);
+                $('#back_day').val(record.ArrivalTime);
+                $('#parking_type').val(record.ParkingType);
                 
             }
         });

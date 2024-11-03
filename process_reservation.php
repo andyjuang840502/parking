@@ -20,12 +20,16 @@ $stmt_update = null;
 $name = $_POST["name"];
 $phone = $_POST["phone"];
 $license_plate = $_POST["license_plate"];
-$mileage = $_POST["mileage"];
+$departure_terminal = $_POST["departure_terminal"];
+$return_terminal = $_POST["return_terminal"];
+$arrival_time = $_POST["arrival_time"];
+//$mileage = $_POST["mileage"];
 $people_count = $_POST["people_count"];
 $entry_time = $_POST["entry_time"];
 $exit_time = $_POST["exit_time"];
 $remasks = $_POST["remasks"];
 $number = $_POST["number"];
+$parking_type = $_POST["parking_type"];
 
 $now = time();
 $entry_time_stamp = strtotime($entry_time);
@@ -90,12 +94,12 @@ if (!empty($name) && !empty($phone) && !empty($license_plate) && !empty($entry_t
             $response = array("message" => "離場時間不得早於進場時間！");
         } else {
             // SQL 插入語句
-            $sql = "INSERT INTO reservation (Name, Phone, LicensePlateNumber, ReservationDayIn, Milage, People, ReservationDayOut, Remasks) 
-                    VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+            $sql = "INSERT INTO reservation (Name, Phone, LicensePlateNumber, DepartureTerminal, ReturnTerminal, ArrivalTime, ParkingType, ReservationDayIn, People, ReservationDayOut, Remasks) 
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
             // 准备查询语句并绑定参数
             $stmt = $conn->prepare($sql);
-            $stmt->bind_param("ssssssss", $name, $phone, $license_plate, $entry_time, $mileage, $people_count, $exit_time, $remasks);
+            $stmt->bind_param("ssssssssisi", $name, $phone, $license_plate, $departure_terminal, $return_terminal, $arrival_time, $parking_type, $entry_time, $people_count, $exit_time, $remasks);
 
             // 執行 SQL 插入語句
             if ($stmt->execute()) {
@@ -115,7 +119,7 @@ if (!empty($name) && !empty($phone) && !empty($license_plate) && !empty($entry_t
         } elseif ($exit_time_stamp < $entry_time_stamp) {
             $response = array("message" => "時間錯誤，請重新輸入！");
         } else {
-            // SQL 插入語句
+            // SQL 查詢語句
             $sql_select = "SELECT * FROM reservation WHERE Number = ?";
             $stmt_select = $conn->prepare($sql_select);
             $stmt_select->bind_param("s", $number);
@@ -127,14 +131,13 @@ if (!empty($name) && !empty($phone) && !empty($license_plate) && !empty($entry_t
                 // 如果找到了記錄，則執行修改操作
 
                 // 這裡是你的修改操作
-                // 例如，更新記錄的某些字段值
                 $row = $result_select->fetch_assoc();
                 $id_to_update = $row['Number']; // 假設 Number 是要修改的記錄的唯一標識符
 
-                $sql_update = "UPDATE reservation SET Name = ?, Phone = ?, LicensePlateNumber = ?, ReservationDayIn = ?, Milage = ?, People = ?, ReservationDayOut = ?, Remasks = ? WHERE Number = ?";
+                $sql_update = "UPDATE reservation SET Name = ?, Phone = ?, LicensePlateNumber = ?, DepartureTerminal = ?, ReturnTerminal = ?, ArrivalTime = ?, ParkingType = ?,ReservationDayIn = ?, Milage = ?, People = ?, ReservationDayOut = ?, Remasks = ? WHERE Number = ?";
                 $stmt_update = $conn->prepare($sql_update);
                 if ($stmt_update) {
-                    $stmt_update->bind_param("sssssssss", $name, $phone, $license_plate, $entry_time, $mileage, $people_count, $exit_time, $remasks, $number);
+                    $stmt_update->bind_param("sssssssssisis", $name, $phone, $license_plate, $departure_terminal, $return_terminal, $arrival_time, $parking_type, $entry_time, $mileage, $people_count, $exit_time, $remasks, $number);
 
                     if ($stmt_update->execute()) {
                         $response = array("message" => "修改成功！", "success" => true);

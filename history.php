@@ -63,7 +63,7 @@
     }
 
     // 查詢歷史紀錄
-    $sql = "SELECT * FROM parking_history";
+    $sql = "SELECT * FROM parking_history ORDER BY BackDay DESC";
     $result = $conn->query($sql);
 
     if ($result->num_rows > 0) {
