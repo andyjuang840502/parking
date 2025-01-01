@@ -1,3 +1,56 @@
+<?php
+// 連接到 MySQL 伺服器
+require_once "config.php";
+
+// 創建連接
+$conn = new mysqli($servername, $username, $password, $database);
+
+// 檢查連接是否成功
+if ($conn->connect_error) {
+    die("連接失敗: " . $conn->connect_error);
+}
+
+// 查詢所有的停車位類別
+$sql_select_categories = "SELECT DISTINCT description FROM parking_number";
+$category_result = $conn->query($sql_select_categories);
+
+// 準備停車位類別
+$categories = [];
+if ($category_result->num_rows > 0) {
+    while($row = $category_result->fetch_assoc()) {
+        $categories[] = $row['description'];
+    }
+}
+
+// 處理新增停車位的 POST 請求
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    $new_number = $_POST["new_number"];
+    $new_description = $_POST["new_description"];
+    
+    // 插入新的停車位資料到資料庫
+    $sql_insert = "INSERT INTO parking_number (number, description) VALUES ('$new_number', '$new_description')";
+
+    if ($conn->query($sql_insert) === TRUE) {
+        echo "<meta http-equiv='refresh' content='0'>";
+    } else {
+        echo "錯誤: " . $sql_insert . "<br>" . $conn->error;
+    }
+}
+
+// 查詢資料庫中的停車位資料
+$sql_select = "SELECT number, description FROM parking_number";
+$result = $conn->query($sql_select);
+
+// 組織停車位數據以便分組顯示
+$parking_data = [];
+if ($result->num_rows > 0) {
+    while($row = $result->fetch_assoc()) {
+        $parking_data[$row['description']][] = $row;
+    }
+}
+$conn->close();
+?>
+
 <!DOCTYPE html>
 <html lang="zh-TW">
 <head>
@@ -101,157 +154,48 @@
         停車位號碼：<input type="text" name="new_number" required>
         位置：
         <select name="new_description">
-            <option value="戶外">戶外</option>
-            <option value="室內">室內</option>
-            <option value="車棚">車棚</option>
-            <option value="VVIP">VVIP</option>
+            <?php foreach ($categories as $category): ?>
+                <option value="<?php echo $category; ?>"><?php echo $category; ?></option>
+            <?php endforeach; ?>
         </select>
         <input type="submit" value="新增">
     </form>
 
-    <!-- 停車位列表 -->
+    <!-- 動態生成停車位類別的 Tab -->
     <div class="tab">
-        <button class="tablinks" onclick="openTab(event, 'Outdoor')">戶外</button>
-        <button class="tablinks" onclick="openTab(event, 'Indoor')">室內</button>
-        <button class="tablinks" onclick="openTab(event, 'Shed')">車棚</button>
-        <button class="tablinks" onclick="openTab(event, 'VVIP')">VVIP</button>
+        <?php foreach ($categories as $category): ?>
+            <button class="tablinks" onclick="openTab(event, '<?php echo $category; ?>')"><?php echo $category; ?></button>
+        <?php endforeach; ?>
     </div>
-
-    <?php
-    // 連接到 MySQL 伺服器
-    require_once "config.php";
-
-    // 創建連接
-    $conn = new mysqli($servername, $username, $password, $database);
-
-    // 檢查連接是否成功
-    if ($conn->connect_error) {
-        die("連接失敗: " . $conn->connect_error);
-    }
-
-    // 處理新增停車位的 POST 請求
-    if ($_SERVER["REQUEST_METHOD"] == "POST") {
-        $new_number = $_POST["new_number"];
-        $new_description = $_POST["new_description"];
-        
-        // 插入新的停車位資料到資料庫
-        $sql_insert = "INSERT INTO parking_number (number, description) VALUES ('$new_number', '$new_description')";
-
-        if ($conn->query($sql_insert) === TRUE) {
-            echo "<meta http-equiv='refresh' content='0'>";
-        } else {
-            echo "錯誤: " . $sql_insert . "<br>" . $conn->error;
-        }
-    }
-
-    // 查詢資料庫中的停車位資料
-    $sql_select = "SELECT number, description FROM parking_number";
-    $result = $conn->query($sql_select);
-
-    // 組織停車位數據以便分組顯示
-    $categories = ['戶外' => [], '室內' => [], '車棚' => [], 'VVIP' => []];
-    if ($result->num_rows > 0) {
-        while($row = $result->fetch_assoc()) {
-            $categories[$row['description']][] = $row;
-        }
-    }
-    $conn->close();
-    ?>
 
     <!-- 顯示停車位資料表格 -->
-    <div id="Outdoor" class="tab-content">
-        <h3>戶外停車位</h3>
-        <table>
-            <thead>
-                <tr>
-                    <th>停車位號碼</th>
-                    <th>操作</th>
-                </tr>
-            </thead>
-            <tbody>
-                <?php foreach ($categories['戶外'] as $row): ?>
+    <?php foreach ($categories as $category): ?>
+        <div id="<?php echo $category; ?>" class="tab-content">
+            <h3><?php echo $category; ?> 停車位</h3>
+            <table>
+                <thead>
                     <tr>
-                        <td><?php echo $row["number"]; ?></td>
-                        <td>
-                            <a class='edit-link' href='parking_number_edit.php?number=<?php echo $row["number"]; ?>'>修改</a>
-                            <a class='delete-link' href='parking_number_delete.php?number=<?php echo $row["number"]; ?>' onclick='return confirm("確定要刪除這個停車位嗎？");'>刪除</a>
-                        </td>
+                        <th>停車位號碼</th>
+                        <th>操作</th>
                     </tr>
-                <?php endforeach; ?>
-            </tbody>
-        </table>
-    </div>
+                </thead>
+                <tbody>
+                    <?php if (isset($parking_data[$category])): ?>
+                        <?php foreach ($parking_data[$category] as $row): ?>
+                            <tr>
+                                <td><?php echo $row["number"]; ?></td>
+                                <td>
+                                    <a class='edit-link' href='parking_number_edit.php?number=<?php echo $row["number"]; ?>'>修改</a>
+                                    <a class='delete-link' href='parking_number_delete.php?number=<?php echo $row["number"]; ?>' onclick='return confirm("確定要刪除這個停車位嗎？");'>刪除</a>
+                                </td>
+                            </tr>
+                        <?php endforeach; ?>
+                    <?php endif; ?>
+                </tbody>
+            </table>
+        </div>
+    <?php endforeach; ?>
 
-    <div id="Indoor" class="tab-content">
-        <h3>室內停車位</h3>
-        <table>
-            <thead>
-                <tr>
-                    <th>停車位號碼</th>
-                    <th>操作</th>
-                </tr>
-            </thead>
-            <tbody>
-                <?php foreach ($categories['室內'] as $row): ?>
-                    <tr>
-                        <td><?php echo $row["number"]; ?></td>
-                        <td>
-                            <a class='edit-link' href='parking_number_edit.php?number=<?php echo $row["number"]; ?>'>修改</a>
-                            <a class='delete-link' href='parking_number_delete.php?number=<?php echo $row["number"]; ?>' onclick='return confirm("確定要刪除這個停車位嗎？");'>刪除</a>
-                        </td>
-                    </tr>
-                <?php endforeach; ?>
-            </tbody>
-        </table>
-    </div>
-
-    <div id="Shed" class="tab-content">
-        <h3>車棚停車位</h3>
-        <table>
-            <thead>
-                <tr>
-                    <th>停車位號碼</th>
-                    <th>操作</th>
-                </tr>
-            </thead>
-            <tbody>
-                <?php foreach ($categories['車棚'] as $row): ?>
-                    <tr>
-                        <td><?php echo $row["number"]; ?></td>
-                        <td>
-                            <a class='edit-link' href='parking_number_edit.php?number=<?php echo $row["number"]; ?>'>修改</a>
-                            <a class='delete-link' href='parking_number_delete.php?number=<?php echo $row["number"]; ?>' onclick='return confirm("確定要刪除這個停車位嗎？");'>刪除</a>
-                        </td>
-                    </tr>
-                <?php endforeach; ?>
-            </tbody>
-        </table>
-    </div>
-
-    <div id="VVIP" class="tab-content">
-        <h3>VVIP停車位</h3>
-        <table>
-            <thead>
-                <tr>
-                    <th>停車位號碼</th>
-                    <th>操作</th>
-                </tr>
-            </thead>
-            <tbody>
-                <?php foreach ($categories['VVIP'] as $row): ?>
-                    <tr>
-                        <td><?php echo $row["number"]; ?></td>
-                        <td>
-                            <a class='edit-link' href='parking_number_edit.php?number=<?php echo $row["number"]; ?>'>修改</a>
-                            <a class='delete-link' href='parking_number_delete.php?number=<?php echo $row["number"]; ?>' onclick='return confirm("確定要刪除這個停車位嗎？");'>刪除</a>
-                        </td>
-                    </tr>
-                <?php endforeach; ?>
-            </tbody>
-        </table>
-    </div>
-
-    <!-- JavaScript -->
     <script>
         function openTab(evt, tabName) {
             var i, tabcontent, tablinks;
