@@ -178,17 +178,31 @@
     }
 
     // 查詢停車位狀況
-    $queryParkingNumbers = "SELECT * FROM parking_number";
+    $queryParkingNumbers = "SELECT DISTINCT description FROM parking_number";
     $resultParkingNumbers = $conn->query($queryParkingNumbers);
     if ($resultParkingNumbers) {
-        // 組織停車位數據以便分組顯示
-        $categories = ['室內' => [], '戶外' => [], '車棚' => [], 'VVIP' => []];
-        $totalSpaces = ['室內' => 0, '戶外' => 0, '車棚' => 0, 'VVIP' => 0];
-        $occupiedSpaces = ['室內' => 0, '戶外' => 0, '車棚' => 0, 'VVIP' => 0];
+        // 動態生成停車位分類
+        $categories = [];
+        $totalSpaces = [];
+        $occupiedSpaces = [];
+
         while ($rowParkingNumber = $resultParkingNumbers->fetch_assoc()) {
-            $parkingNumber = $rowParkingNumber['number'];
-            $description = $rowParkingNumber['description'];
-            $totalSpaces[$description]++;
+            $category = $rowParkingNumber['description'];
+            $categories[$category] = [];
+            $totalSpaces[$category] = 0;
+            $occupiedSpaces[$category] = 0;
+        }
+
+        // 取得每個類別下的停車位
+        $queryAllParkingSpaces = "SELECT * FROM parking_number";
+        $resultAllParkingSpaces = $conn->query($queryAllParkingSpaces);
+
+        while ($rowParkingSpace = $resultAllParkingSpaces->fetch_assoc()) {
+            $category = $rowParkingSpace['description'];
+            $parkingNumber = $rowParkingSpace['number'];
+            $totalSpaces[$category]++;
+
+            // 查詢該停車位的狀態
             $queryCurrentStatus = "SELECT LicensePlateNumber, Name, ParkingDay, BackDay FROM parking WHERE ParkingNumber = '$parkingNumber'";
             $resultCurrentStatus = $conn->query($queryCurrentStatus);
             $status = "可停車"; // 默認為可停車
@@ -201,9 +215,15 @@
                 $name = $rowCurrentStatus['Name']; // 顯示姓名
                 $parkingday = $rowCurrentStatus['ParkingDay']; //進場時間
                 $backday = $rowCurrentStatus['BackDay']; //預計離場時間
-                $occupiedSpaces[$description]++;
+                $occupiedSpaces[$category]++;
             }
-            $categories[$description][] = ['number' => $parkingNumber, 'status' => $status, 'name' => $name, 'parkingday' => $parkingday, 'backday' => $backday];
+            $categories[$category][] = [
+                'number' => $parkingNumber,
+                'status' => $status,
+                'name' => $name,
+                'parkingday' => $parkingday,
+                'backday' => $backday
+            ];
         }
 
         // 顯示總覽統計
@@ -227,12 +247,12 @@
         echo "<div class='status-container'>";
         echo "<div class='tab'>";
         foreach ($categories as $category => $items) {
-            echo "<button class='tablinks' onclick='openTab(event, \"${category}\")'>${category}</button>";
+            echo "<button class='tablinks' onclick='openTab(event, \"${category}\")'>{$category}</button>";
         }
         echo "</div>";
 
         foreach ($categories as $category => $items) {
-            echo "<div id='${category}' class='tab-content'>";
+            echo "<div id='{$category}' class='tab-content'>";
             echo "<table class='status-table'>";
             echo "<tr><th>停車位</th><th>狀態 / 車牌</th><th>姓名</th><th>進場日期</th><th>預計離場日期</th></tr>";
             foreach ($items as $item) {
@@ -243,14 +263,6 @@
                 echo "<td>{$item['name']}</td>";
                 echo "<td>{$item['parkingday']}</td>";
                 echo "<td>{$item['backday']}</td>";
-                /*
-                echo "<td>";
-                if ($item['status'] != '可停車') {
-                    echo "<button onclick='editParkingRecord(" . json_encode($item) . ")'>修改資料</button> ";
-                    echo "<button onclick='exitRecord(" . htmlspecialchars(json_encode($item)) . ")'>離場結算</button>";
-                }
-                echo "</td>";
-                */
                 echo "</tr>";
             }
             echo "</table>";
@@ -299,59 +311,36 @@
             input.value = JSON.stringify(record);
             form.appendChild(input);
 
-            // 可以加入其他需要的表單數據
-
-            // 將表單加入到文檔中並提交
             document.body.appendChild(form);
             form.submit();
         }
 
-        // 定義刪除記錄函數
-        function deleteRecord(record) {
-            if (confirm('確定要刪除此預約嗎？')) {
-                var xhr = new XMLHttpRequest();
-                xhr.open("POST", "delete_reservation.php", true);
-                xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
-                xhr.onload = function() {
-                    if (xhr.status === 200) {
-                        alert('預約已刪除');
-                        location.reload(); // 刪除後重新載入頁面
-                    } else {
-                        alert('刪除失敗');
-                    }
-                };
-                xhr.send("number=" + encodeURIComponent(record.Number));
-            }
+        // 顯示或隱藏停車位總覽
+        function toggleOverview() {
+            var content = document.querySelector('.overview-content');
+            content.style.display = content.style.display === 'none' ? 'block' : 'none';
         }
 
-
-        // 切換標籤頁
-        function openTab(evt, tabName) {
+        // 顯示選中的標籤頁
+        function openTab(evt, category) {
             var i, tabcontent, tablinks;
             tabcontent = document.getElementsByClassName("tab-content");
             for (i = 0; i < tabcontent.length; i++) {
-                tabcontent[i].style.display = "none";  
+                tabcontent[i].style.display = "none";
             }
             tablinks = document.getElementsByClassName("tablinks");
             for (i = 0; i < tablinks.length; i++) {
                 tablinks[i].className = tablinks[i].className.replace(" active", "");
             }
-            document.getElementById(tabName).style.display = "block";
+            document.getElementById(category).style.display = "block";
             evt.currentTarget.className += " active";
         }
 
-        // 顯示或隱藏總覽內容
-        function toggleOverview() {
-            var overviewContent = document.querySelector('.overview-content');
-            if (overviewContent.style.display === "block") {
-                overviewContent.style.display = "none";
-            } else {
-                overviewContent.style.display = "block";
-            }
-        }
-
-        // 默认显示第一个标签页
-        document.querySelector(".tab button").click();
+        // 預設顯示第一個標籤頁
+        document.addEventListener('DOMContentLoaded', function () {
+            var firstTab = document.getElementsByClassName("tablinks")[0];
+            firstTab.click();
+        });
     </script>
 </body>
 </html>

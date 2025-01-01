@@ -173,15 +173,39 @@
         </p>
         <br><br> 
             -->
-        <label for="parking_type">預約時選擇的停車位類型為：</label>
-        <!-- <input type="parking_type" name="parking_type" id="parking_type"><br><br> -->
-        <select name="parking_type" id="parking_type" required>
-            <option value="無預約資料">無預約資料</option>
-            <option value="室內">室內</option>
-            <option value="戶外">戶外</option>
-            <option value="車棚">車棚</option>
-            <option value="VVI">VVIP</option>
-        </select>
+            <label for="parking_type">預約時選擇的停車位類型為：</label>
+            <select name="parking_type" id="parking_type" required>
+                <option value="">選擇停車位類型</option>
+                <?php
+                // 連接到 MySQL 伺服器
+                require_once "config.php";
+
+                // 創建連接
+                $conn = new mysqli($servername, $username, $password, $database);
+
+                // 檢查連接是否成功
+                if ($conn->connect_error) {
+                    die("連接失敗: " . $conn->connect_error);
+                }
+
+                // 查詢資料庫中的停車位類型資料
+                $sql_select = "SELECT DISTINCT description FROM parking_number ORDER BY description";
+                $result = $conn->query($sql_select);
+
+                if ($result->num_rows > 0) {
+                    // 讀取每一條記錄並顯示在選單中
+                    while($row = $result->fetch_assoc()) {
+                        echo "<option value='" . $row["description"] . "'>" . $row["description"] . "</option>";
+                    }
+                } else {
+                    echo "<option value=''>沒有可用的停車位類型</option>";
+                }
+
+                // 關閉連接
+                $conn->close();
+                ?>
+            </select>
+
 
         <label for="parking_day">進場日期 (ParkingDay)：</label>
         <input type="datetime-local" name="parking_day" id="parking_day">
