@@ -174,7 +174,7 @@
         <br><br> 
             -->
             <label for="parking_type">預約時選擇的停車位類型為：</label>
-            <select name="parking_type" id="parking_type" required>
+            <select name="parking_type" id="parking_type">
                 <option value="">選擇停車位類型</option>
                 <?php
                 // 連接到 MySQL 伺服器

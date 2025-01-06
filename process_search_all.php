@@ -159,8 +159,8 @@ if (isset($_GET['date'])) {
             echo "<td class='column-width'>" . (isset($row['OtherItems']) ? htmlspecialchars($row['OtherItems']) : '無') . "</td>";
             echo "<td class='column-width resizable'>" . htmlspecialchars($row['Remasks']) . "</td>";
             echo "<td class='column-width'>";
-            echo "<button onclick='editRecordParking(" . json_encode($row) . ")'>修改</button> ";
-            echo "<button onclick='deleteRecordParking(" . json_encode($row) . ")'>刪除</button>";
+            echo "<button onclick='editParkingRecord(" . json_encode($row) . ")'>修改</button> ";
+            echo "<button onclick='deleteParkingRecord(" . json_encode($row) . ")'>刪除</button>";
             echo "</td>";
             echo "</tr>";
         }
@@ -281,6 +281,26 @@ function sortTable(header, tableId, columnIndex) {
             xhr.send("number=" + encodeURIComponent(record.Number));
         }
     }
+
+    // 定義刪除停車記錄函數
+    function deleteParkingRecord(record) {
+        if (confirm('確定要直接刪除此停車記錄嗎？ 而不是要讓他離場?')) {
+            var xhr = new XMLHttpRequest();
+            xhr.open("POST", "delete_parking.php", true);
+            xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+            xhr.onload = function() {
+                if (xhr.status === 200) {
+                    alert('停車記錄已刪除');
+                    location.reload(); // 刪除後重新載入頁面
+                } else {
+                    alert('刪除失敗');
+                }
+            };
+            xhr.send("id=" + encodeURIComponent(record.ID)); // 傳送ID以識別該記錄
+        }
+    }
+
+
 </script>
 
 </body>
