@@ -99,7 +99,7 @@ if (!empty($name) && !empty($phone) && !empty($license_plate) && !empty($entry_t
 
             // 准备查询语句并绑定参数
             $stmt = $conn->prepare($sql);
-            $stmt->bind_param("ssssssssisi", $name, $phone, $license_plate, $departure_terminal, $return_terminal, $arrival_time, $parking_type, $entry_time, $people_count, $exit_time, $remasks);
+            $stmt->bind_param("ssssssssiss", $name, $phone, $license_plate, $departure_terminal, $return_terminal, $arrival_time, $parking_type, $entry_time, $people_count, $exit_time, $remasks);
 
             // 執行 SQL 插入語句
             if ($stmt->execute()) {
@@ -137,7 +137,7 @@ if (!empty($name) && !empty($phone) && !empty($license_plate) && !empty($entry_t
                 $sql_update = "UPDATE reservation SET Name = ?, Phone = ?, LicensePlateNumber = ?, DepartureTerminal = ?, ReturnTerminal = ?, ArrivalTime = ?, ParkingType = ?,ReservationDayIn = ?, Milage = ?, People = ?, ReservationDayOut = ?, Remasks = ? WHERE Number = ?";
                 $stmt_update = $conn->prepare($sql_update);
                 if ($stmt_update) {
-                    $stmt_update->bind_param("sssssssssisis", $name, $phone, $license_plate, $departure_terminal, $return_terminal, $arrival_time, $parking_type, $entry_time, $mileage, $people_count, $exit_time, $remasks, $number);
+                    $stmt_update->bind_param("sssssssssisss", $name, $phone, $license_plate, $departure_terminal, $return_terminal, $arrival_time, $parking_type, $entry_time, $mileage, $people_count, $exit_time, $remasks, $number);
 
                     if ($stmt_update->execute()) {
                         $response = array("message" => "修改成功！", "success" => true);
