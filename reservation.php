@@ -245,7 +245,7 @@
                 $('#number').val(record.Number);
                 $('#departure_terminal').val(record.DepartureTerminal);
                 $('#return_terminal').val(record.ReturnTerminal);
-                $('#arrival_timel').val(record.ArrivalTime);
+                $('#arrival_time').val(record.ArrivalTime);
                 $('#parking_type').val(record.ParkingType);
             }
         });

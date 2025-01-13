@@ -93,6 +93,7 @@
     <h2>查詢所有 預約及停車 狀況</h2>
 
     <?php
+    date_default_timezone_set('Asia/Taipei'); // 設定為台灣時間 UTC+8
     require_once "config.php";
 
     // 創建到數據庫的連接
@@ -282,20 +283,20 @@
     <script>
         // 定義修改記錄函數
         function editRecord(record) {
-            // 將記錄轉換為 JSON 格式，並將其作為查詢參數傳遞到 reservation.php
-            window.location.href = "reservation.php?record=" + encodeURIComponent(JSON.stringify(record));
+            var encodedRecord = encodeURIComponent(JSON.stringify(record));  // 確保整個資料被編碼
+            window.location.href = "reservation.php?record=" + encodedRecord;
         }
 
         // 定義進場記錄函數
         function enterRecord(record) {
-            // 將記錄轉換為 JSON 格式，並將其作為查詢參數傳遞到 parking.php
-            window.location.href = "parking.php?record=" + encodeURIComponent(JSON.stringify(record));
+            var encodedRecord = encodeURIComponent(JSON.stringify(record));  // 確保整個資料被編碼
+            window.location.href = "parking.php?record=" + encodedRecord;
         }
 
         // 定義停車修改函數
         function editParkingRecord(record) {
-            // 將記錄轉換為 JSON 格式，並將其作為查詢參數傳遞到 parking.php
-            window.location.href = "parking_edit.php?record=" + encodeURIComponent(JSON.stringify(record));
+            var encodedRecord = encodeURIComponent(JSON.stringify(record));  // 確保整個資料被編碼
+            window.location.href = "parking_edit.php?record=" + encodedRecord;
         }
 
         // 定義離場結算記錄函數
@@ -308,7 +309,7 @@
             var input = document.createElement('input');
             input.type = 'hidden';
             input.name = 'record';
-            input.value = JSON.stringify(record);
+            input.value = JSON.stringify(record);  // 在這裡不需要進行 URL 編碼，因為這是 POST 提交
             form.appendChild(input);
 
             document.body.appendChild(form);
